@@ -344,6 +344,13 @@ sharing: ${sharing}
             localStorage.setItem('github_token', data.access_token)
           }
         }
+        
+        function generateFileName(title) {
+            const date = new Date();
+            const formattedDate = date.toISOString().split('T')[0];
+            const formattedTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            return `${formattedDate}-${formattedTitle}.md`;
+        }
     </script>
 </body>
 </html>
