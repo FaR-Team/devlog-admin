@@ -194,7 +194,7 @@
                         repo: 'devlog',
                         path: path,
                         message: message,
-                        content: Buffer.from(content).toString('base64'),
+                        content: btoa(content),
                         branch: DEVLOG_BRANCH
                     });
                 }
