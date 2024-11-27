@@ -206,14 +206,14 @@
                 }
                 function generatePostContent() {
                     const title = document.getElementById('title').value;
-                    const date = document.getElementById('date').value || new Date().toISOString();
+                    const dateInput = document.getElementById('date');
                     const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
                     const comments = document.getElementById('comments').value;
                     const sharing = document.getElementById('sharing').value;
                     const markdownContent = simplemde.value().trim();
 
-                    // Format date as YYYY-MM-DD HH:mm:ss +0000
-                    const formattedDate = new Date(date).toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' +0000');
+                    const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
+                    const formattedDate = selectedDate.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' +0000');
 
                     return `---
 layout: post
@@ -225,7 +225,8 @@ sharing: ${sharing}
 ---
 
 ${markdownContent}`;
-              }        document.getElementById('saveButton').addEventListener('click', () => {
+                }
+        document.getElementById('saveButton').addEventListener('click', () => {
             autoSave();
             alert('Post saved as draft');
         });
