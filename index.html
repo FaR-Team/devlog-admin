@@ -83,6 +83,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <script src="https://unpkg.com/@octokit/rest"></script>
     <script>
         window.AUTH_TOKEN = '{{ env.AUTH_TOKEN }}';
     </script>
@@ -179,8 +180,7 @@
                 const DEVLOG_REPO = 'FaR-Team/devlog';
                 const DEVLOG_BRANCH = 'main';
                 async function createPost(title, content) {
-                    const { Octokit } = window;
-                    const octokit = new Octokit({
+                    const octokit = new window.Octokit({
                         auth: getAuthToken()
                     });
 
@@ -344,7 +344,6 @@ sharing: ${sharing}
           }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@octokit/rest@19.0.7/dist/index.min.js"></script>
 </body>
 </html>
 
