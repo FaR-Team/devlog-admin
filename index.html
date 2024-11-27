@@ -141,15 +141,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Set default date to now
+            const now = new Date();
+            const dateInput = document.getElementById('date');
+            dateInput.value = now.toISOString().slice(0, 16);
+            
             const savedTitle = localStorage.getItem('autoSaveTitle');
             const savedContent = localStorage.getItem('autoSaveContent');
             if (savedTitle) document.getElementById('title').value = savedTitle;
             if (savedContent) simplemde.value(savedContent);
 
-            autoSaveInterval = setInterval(autoSave, 60000); // Auto-save every minute
-
-            const undoButton = document.getElementById('undoButton');
-            const redoButton = document.getElementById('redoButton');
+            autoSaveInterval = setInterval(autoSave, 60000);
         });
 
         document.getElementById('previewButton').addEventListener('click', () => {
