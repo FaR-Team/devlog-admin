@@ -235,16 +235,8 @@
                     const sharing = document.getElementById('sharing').value;
                     const markdownContent = simplemde.value().trim();
 
-                    return `---
-                layout: post
-                title: "${title}"
-                date: ${formattedDate}
-                tags: [${tags.join(', ')}]
-                comments: ${comments}
-                sharing: ${sharing}
-                ---
-
-                ${markdownContent}`;                }
+                    return `${markdownContent}`;
+                }
         document.getElementById('saveButton').addEventListener('click', () => {
             autoSave();
             alert('Post saved as draft');
