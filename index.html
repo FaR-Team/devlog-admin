@@ -176,7 +176,6 @@
 
                     await publishPost();
 
-                    alert('Post published to GitHub!');
                     localStorage.removeItem('autoSaveTitle');
                     localStorage.removeItem('autoSaveContent');
                 });
@@ -370,8 +369,9 @@
         }
         
         function generateFileName(title) {
-            const date = new Date();
-            const formattedDate = date.toISOString().split('T')[0];
+            const dateInput = document.getElementById('date');
+            const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
+            const formattedDate = selectedDate.toISOString().split('T')[0];
             const formattedTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
             return `${formattedDate}-${formattedTitle}.md`;
         }
