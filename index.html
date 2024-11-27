@@ -199,33 +199,51 @@
                     });
                 }
                 async function publishPost() {
-                    const title = document.getElementById('title').value;
-                    const content = generatePostContent();
+                    try {
+                        const title = document.getElementById('title').value;
+                        console.log('Publishing post:', title);
+                        console.log('Date selected:', document.getElementById('date').value);
+        
+                        const content = generatePostContent();
+                        console.log('Generated content:', content);
 
-                    await createPost(title, content);
+                        await createPost(title, content);
+                        alert('Post published to GitHub!');
+        
+                        localStorage.removeItem('autoSaveTitle');
+                        localStorage.removeItem('autoSaveContent');
+                    } catch (error) {
+                        console.error('Failed to publish post:', error);
+                        alert(`Failed to publish post: ${error.message}`);
+                    }
                 }
+
                 function generatePostContent() {
                     const title = document.getElementById('title').value;
                     const dateInput = document.getElementById('date');
+                    console.log('Raw date input:', dateInput.value);
+    
+                    const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
+                    console.log('Parsed date:', selectedDate);
+    
+                    const formattedDate = selectedDate.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' +0000');
+                    console.log('Formatted date:', formattedDate);
+
                     const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
                     const comments = document.getElementById('comments').value;
                     const sharing = document.getElementById('sharing').value;
                     const markdownContent = simplemde.value().trim();
 
-                    const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
-                    const formattedDate = selectedDate.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' +0000');
-
                     return `---
-layout: post
-title: "${title}"
-date: ${formattedDate}
-tags: [${tags.join(', ')}]
-comments: ${comments}
-sharing: ${sharing}
----
+                layout: post
+                title: "${title}"
+                date: ${formattedDate}
+                tags: [${tags.join(', ')}]
+                comments: ${comments}
+                sharing: ${sharing}
+                ---
 
-${markdownContent}`;
-                }
+                ${markdownContent}`;                }
         document.getElementById('saveButton').addEventListener('click', () => {
             autoSave();
             alert('Post saved as draft');
