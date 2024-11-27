@@ -87,48 +87,50 @@
     <script>
         window.AUTH_TOKEN = '{{ env.AUTH_TOKEN }}';
     </script>
-    <script>
-            let simplemde = new SimpleMDE({
-                element: document.getElementById("editor"),
-                spellChecker: false,
-                toolbar: [
-                    {
-                        name: "undo",
-                        action: SimpleMDE.undo,
-                        className: "fa fa-undo",
-                        title: "Undo",
-                    },
-                    {
-                        name: "redo",
-                        action: SimpleMDE.redo,
-                        className: "fa fa-repeat",
-                        title: "Redo",
-                    }, "|",
-                    "bold", "italic", "heading", "|",
-                    "quote", "unordered-list", "ordered-list", "|",
-                    "link", "image",
-                    "|",
-                    {
-                        name: "align-left",
-                        action: alignLeft,
-                        className: "fa fa-align-left",
-                        title: "Align Left",
-                    },
-                    {
-                        name: "align-center",
-                        action: alignCenter,
-                        className: "fa fa-align-center",
-                        title: "Align Center",
-                    },
-                    {
-                        name: "align-right",
-                        action: alignRight,
-                        className: "fa fa-align-right",
-                        title: "Align Right",
-                    }, "|",
-                    "preview", "side-by-side", "fullscreen",
-                ],
-            });        let autoSaveInterval;
+    <script type="module">
+        import { Octokit } from 'https://esm.sh/@octokit/rest';
+        
+        let simplemde = new SimpleMDE({
+            element: document.getElementById("editor"),
+            spellChecker: false,
+            toolbar: [
+                {
+                    name: "undo",
+                    action: SimpleMDE.undo,
+                    className: "fa fa-undo",
+                    title: "Undo",
+                },
+                {
+                    name: "redo",
+                    action: SimpleMDE.redo,
+                    className: "fa fa-repeat",
+                    title: "Redo",
+                }, "|",
+                "bold", "italic", "heading", "|",
+                "quote", "unordered-list", "ordered-list", "|",
+                "link", "image",
+                "|",
+                {
+                    name: "align-left",
+                    action: alignLeft,
+                    className: "fa fa-align-left",
+                    title: "Align Left",
+                },
+                {
+                    name: "align-center",
+                    action: alignCenter,
+                    className: "fa fa-align-center",
+                    title: "Align Center",
+                },
+                {
+                    name: "align-right",
+                    action: alignRight,
+                    className: "fa fa-align-right",
+                    title: "Align Right",
+                }, "|",
+                "preview", "side-by-side", "fullscreen",
+            ],
+        });        let autoSaveInterval;
 
         function autoSave() {
             const title = document.getElementById('title').value;
@@ -345,4 +347,3 @@ sharing: ${sharing}
     </script>
 </body>
 </html>
-
