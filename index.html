@@ -324,7 +324,7 @@ sharing: ${sharing}
         
         // Add OAuth login button
         document.getElementById('login').addEventListener('click', () => {
-            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&scope=repo`;
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://devlog-admin.netlify.app/index.html')}&scope=repo`;
             window.location.href = authUrl;
         });
         
