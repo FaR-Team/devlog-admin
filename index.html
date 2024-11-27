@@ -200,7 +200,7 @@
                 }
                 async function publishPost() {
                     const title = document.getElementById('title').value;
-                    const content = generatePostContent(); // Your existing content generation logic
+                    const content = generatePostContent();
 
                     await createPost(title, content);
                 }
@@ -212,17 +212,18 @@
                     const sharing = document.getElementById('sharing').value;
                     const markdownContent = simplemde.value().trim();
 
+                    const formattedDate = new Date(date).toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' +0000');
+
                     return `---
 layout: post
 title: "${title}"
-date: ${date}
+date: ${formattedDate}
 tags: [${tags.join(', ')}]
 comments: ${comments}
 sharing: ${sharing}
 ---
 
-                ${markdownContent}`;
-                }        document.getElementById('saveButton').addEventListener('click', () => {
+${markdownContent}`;                }        document.getElementById('saveButton').addEventListener('click', () => {
             autoSave();
             alert('Post saved as draft');
         });
