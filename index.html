@@ -180,7 +180,7 @@
                 const DEVLOG_REPO = 'FaR-Team/devlog';
                 const DEVLOG_BRANCH = 'main';
                 async function createPost(title, content) {
-                    const octokit = new window.Octokit({
+                    const octokit = new Octokit({
                         auth: getAuthToken()
                     });
 
@@ -196,7 +196,6 @@
                         branch: DEVLOG_BRANCH
                     });
                 }
-
                 async function publishPost() {
                     const title = document.getElementById('title').value;
                     const content = generatePostContent(); // Your existing content generation logic
