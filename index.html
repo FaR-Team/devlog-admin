@@ -178,8 +178,8 @@
 
                 const DEVLOG_REPO = 'FaR-Team/devlog';
                 const DEVLOG_BRANCH = 'main';
-
                 async function createPost(title, content) {
+                    const { Octokit } = window;
                     const octokit = new Octokit({
                         auth: getAuthToken()
                     });
@@ -344,5 +344,7 @@ sharing: ${sharing}
           }
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@octokit/rest@19.0.7/dist/index.min.js"></script>
 </body>
 </html>
+
