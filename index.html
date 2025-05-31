@@ -668,7 +668,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Set default date to now
             const now = new Date();
             const dateInput = document.getElementById('date');
             dateInput.value = now.toISOString().slice(0, 16);
@@ -686,7 +685,6 @@
                 updateUserProfile();
             }
             
-            // Handle routing after token is available
             if (savedToken) {
                 handleRouting();
             }
@@ -787,26 +785,31 @@
                         auth: getAuthToken()
                     });
 
-                    let path, message;
+                    let path, message, sha;
                     
                     if (window.editingFilename) {
-                        // Updating existing post
                         path = `_posts/${window.editingFilename}`;
                         message = `Update post: ${title}`;
+                        sha = window.editingSHA;
                     } else {
-                        // Creating new post
                         path = `_posts/${generateFileName(title)}`;
                         message = `Add new post: ${title}`;
                     }
 
-                    await octokit.rest.repos.createOrUpdateFileContents({
+                    const params = {
                         owner: 'FaR-Team',
                         repo: 'devlog',
                         path: path,
                         message: message,
                         content: btoa(content),
                         branch: DEVLOG_BRANCH
-                    });
+                    };
+
+                    if (sha) {
+                        params.sha = sha;
+                    }
+
+                    await octokit.rest.repos.createOrUpdateFileContents(params);
                 }
                 async function publishPost() {
                     try {
@@ -833,7 +836,6 @@
                         localStorage.removeItem('autoSaveTitle');
                         localStorage.removeItem('autoSaveContent');
                         
-                        // Navigate back to posts page after successful publish/update
                         window.location.href = 'posts.html';
                         
                     } catch (error) {
@@ -1020,6 +1022,162 @@ ${markdownContent}`;
             return `${formattedDate}-${formattedTitle}.md`;
         }
 
+        function handleRouting() {
+            const path = window.location.pathname;
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (path.startsWith('/edit/')) {
+                const postSlug = path.replace('/edit/', '');
+                loadPostBySlug(postSlug);
+                return;
+            }
+            
+            const editFilename = urlParams.get('edit');
+            if (editFilename) {
+                loadPostForEditing(editFilename);
+                return;
+            }
+        }
+
+        async function loadPostBySlug(slug) {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                const octokit = new Octokit({ auth: token });
+                const { data: files } = await octokit.rest.repos.getContent({
+                    owner: 'FaR-Team',
+                    repo: 'devlog',
+                    path: '_posts'
+                });
+
+                const matchingFile = files.find(file => {
+                    if (!file.name.endsWith('.md')) return false;
+                    const fileSlug = file.name.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
+                    return fileSlug === slug;
+                });
+
+                if (matchingFile) {
+                    await loadPostForEditing(matchingFile.name);
+                    window.history.replaceState({}, document.title, `/edit/${slug}`);
+                } else {
+                    alert('Post not found');
+                    window.location.href = '/posts';
+                }
+            } catch (error) {
+                console.error('Failed to find post:', error);
+                alert('Failed to load post');
+                window.location.href = '/posts';
+            }
+        }
+
+        async function loadPostForEditing(filename) {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                const octokit = new Octokit({ auth: token });
+                const { data: content } = await octokit.rest.repos.getContent({
+                    owner: 'FaR-Team',
+                    repo: 'devlog',
+                    path: `_posts/${filename}`
+                });
+                
+                const decoded = atob(content.content);
+                const post = parsePostContent(decoded);
+                
+                document.getElementById('title').value = post.title;
+                
+                if (post.date) {
+                    const dateObj = new Date(post.date);
+                    const formattedDate = dateObj.toISOString().slice(0, 16);
+                    document.getElementById('date').value = formattedDate;
+                }
+                
+                document.getElementById('project').value = post.project;
+                
+                document.querySelectorAll('.tag-selection input[type="checkbox"]').forEach(cb => cb.checked = false);
+                
+                post.tags.forEach(tag => {
+                    const checkbox = document.querySelector(`input[value="${tag.trim()}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                
+                simplemde.value(post.content);
+                
+                window.editingFilename = filename;
+                window.editingSHA = content.sha;
+                
+                document.querySelector('.logo').textContent = 'Editing: ' + post.title;
+                document.querySelector('button[type="submit"]').textContent = 'Update Post';
+                
+                if (!document.getElementById('cancelEdit')) {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.type = 'button';
+                    cancelBtn.id = 'cancelEdit';
+                    cancelBtn.className = 'btn-blogger-secondary';
+                    cancelBtn.textContent = 'Cancel';
+                    cancelBtn.onclick = cancelEditing;
+                    document.querySelector('.action-buttons').appendChild(cancelBtn);
+                }
+                
+            } catch (error) {
+                console.error('Failed to load post:', error);
+                alert('Failed to load post for editing');
+            }
+        }
+
+        function parsePostContent(content) {
+            const lines = content.split('\n');
+            const frontMatterEnd = lines.findIndex((line, index) => index > 0 && line === '---');
+            
+            const frontMatter = {};
+            for (let i = 1; i < frontMatterEnd; i++) {
+                const line = lines[i];
+                const colonIndex = line.indexOf(':');
+                if (colonIndex > -1) {
+                    const key = line.substring(0, colonIndex).trim();
+                    let value = line.substring(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
+                    
+                    if (key === 'tags') {
+                        value = value.replace(/[\[\]]/g, '').split(',').map(t => t.trim()).filter(t => t);
+                    }
+                    
+                    frontMatter[key] = value;
+                }
+            }
+
+            const bodyContent = lines.slice(frontMatterEnd + 1).join('\n').trim();
+
+            return {
+                title: frontMatter.title || 'Untitled',
+                date: frontMatter.date || '',
+                project: frontMatter.project || '',
+                tags: frontMatter.tags || [],
+                content: bodyContent
+            };
+        }
+
+        function cancelEditing() {
+            window.editingFilename = null;
+            window.editingSHA = null;
+            
+            document.querySelector('.logo').textContent = 'Bloggern\'t';
+            document.querySelector('button[type="submit"]').textContent = 'Publish';
+            
+            const cancelBtn = document.getElementById('cancelEdit');
+            if (cancelBtn) cancelBtn.remove();
+            
+            document.getElementById('title').value = '';
+            simplemde.value('');
+            document.getElementById('project').value = '';
+            document.querySelectorAll('.tag-selection input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            const now = new Date();
+            document.getElementById('date').value = now.toISOString().slice(0, 16);
+            
+            window.location.href = '/posts';
+        }
     </script>
 </body>
 </html>
