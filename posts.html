@@ -358,7 +358,9 @@
         }
 
         window.editPost = function(filename) {
-            window.location.href = `index.html?edit=${encodeURIComponent(filename)}`;
+            // Remove the .md extension and date prefix for cleaner URLs
+            const cleanName = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
+            window.location.href = `edit/${cleanName}`;
         };
 
         async function exchangeCodeForToken(code) {

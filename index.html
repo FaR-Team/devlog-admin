@@ -686,21 +686,9 @@
                 updateUserProfile();
             }
             
-            // Check if we're editing a post
-            const urlParams = new URLSearchParams(window.location.search);
-            const editFilename = urlParams.get('edit');
-            if (editFilename && savedToken) {
-                loadPostForEditing(editFilename);
-            }
-
-            // Initialize Google Input Tools
-            if (typeof google !== 'undefined' && google.elements && google.elements.inputtools) {
-                google.elements.inputtools.init({
-                    sourceLanguage: 'en',
-                    destinationLanguage: ['en'],
-                    shortcutKey: 'ctrl+g',
-                    inputToolsPath: 'https://www.gstatic.com/inputtools/js/ita/'
-                });
+            // Handle routing after token is available
+            if (savedToken) {
+                handleRouting();
             }
         });
 
@@ -825,6 +813,11 @@
                         const title = document.getElementById('title').value;
                         const project = document.getElementById('project').value;
                         
+                        if (!title.trim()) {
+                            alert('Please enter a title');
+                            return;
+                        }
+                        
                         if (!project) {
                             alert('Please select a project');
                             return;
@@ -840,10 +833,8 @@
                         localStorage.removeItem('autoSaveTitle');
                         localStorage.removeItem('autoSaveContent');
                         
-                        // Reset editing state
-                        window.editingFilename = null;
-                        document.querySelector('.logo').textContent = 'Bloggern\'t';
-                        document.querySelector('button[type="submit"]').textContent = 'Publish';
+                        // Navigate back to posts page after successful publish/update
+                        window.location.href = 'posts.html';
                         
                     } catch (error) {
                         console.error('Failed to publish post:', error);
