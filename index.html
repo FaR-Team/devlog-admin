@@ -685,6 +685,13 @@
                 window.AUTH_TOKEN = savedToken;
                 updateUserProfile();
             }
+            
+            // Check if we're editing a post
+            const urlParams = new URLSearchParams(window.location.search);
+            const editFilename = urlParams.get('edit');
+            if (editFilename && savedToken) {
+                loadPostForEditing(editFilename);
+            }
 
             // Initialize Google Input Tools
             if (typeof google !== 'undefined' && google.elements && google.elements.inputtools) {
