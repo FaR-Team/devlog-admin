@@ -549,10 +549,37 @@ ${markdownContent}`;
             }
         }
 
-        function getAuthToken() {
-            return window.AUTH_TOKEN || localStorage.getItem('github_token');
+        async function exchangeCodeForToken(code) {
+          try {
+            const response = await fetch('/.netlify/functions/token-exchange?code=' + code)
+            const data = await response.json()
+            
+            console.log('Token exchange response:', data);
+            
+            if (data.access_token) {
+              window.AUTH_TOKEN = data.access_token
+              localStorage.setItem('github_token', data.access_token)
+              
+              // Clean up URL
+              window.history.replaceState({}, document.title, window.location.pathname);
+              
+              await updateUserProfile();
+            } else {
+              console.error('No access token received:', data);
+              alert('Failed to authenticate with GitHub');
+            }
+          } catch (error) {
+            console.error('Token exchange failed:', error);
+            alert('Authentication failed. Please try again.');
+          }
         }
-
+        
+        function getAuthToken() {
+            const token = window.AUTH_TOKEN || localStorage.getItem('github_token');
+            console.log('Getting auth token:', token ? 'Token exists' : 'No token');
+            return token;
+        }
+        
         function generateImageFilename(originalFilename) {
             const postTitle = document.getElementById('title').value;
             const randomString = Math.random().toString(36).substring(2, 8);
@@ -570,17 +597,6 @@ ${markdownContent}`;
         if (window.location.search.includes('code=')) {
             const code = new URLSearchParams(window.location.search).get('code');
             exchangeCodeForToken(code);
-        }
-        
-        async function exchangeCodeForToken(code) {
-          const response = await fetch('/.netlify/functions/token-exchange?code=' + code)
-          const data = await response.json()
-          
-          if (data.access_token) {
-            window.AUTH_TOKEN = data.access_token
-            localStorage.setItem('github_token', data.access_token)
-            updateUserProfile();
-          }
         }
         
         function generateFileName(title) {
