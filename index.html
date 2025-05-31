@@ -999,7 +999,8 @@ ${markdownContent}`;
             const postTitle = document.getElementById('title').value;
             const randomString = Math.random().toString(36).substring(2, 8);
             const extension = originalFilename.split('.').pop();
-            return `${postTitle}-${randomString}.${extension}`;
+            const slugifiedTitle = slugify(postTitle);
+            return `${slugifiedTitle}-${randomString}.${extension}`;
         }
         
         const GITHUB_CLIENT_ID = 'Ov23liRLEzfDmfWE4Wap';
@@ -1018,7 +1019,7 @@ ${markdownContent}`;
             const dateInput = document.getElementById('date');
             const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
             const formattedDate = selectedDate.toISOString().split('T')[0];
-            const formattedTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            const formattedTitle = slugify(title);
             return `${formattedDate}-${formattedTitle}.md`;
         }
 
@@ -1026,12 +1027,14 @@ ${markdownContent}`;
             const path = window.location.pathname;
             const urlParams = new URLSearchParams(window.location.search);
             
+            // Check for edit URLs like /edit/post-title
             if (path.startsWith('/edit/')) {
-                const postSlug = path.replace('/edit/', '');
+                const postSlug = decodeURIComponent(path.replace('/edit/', ''));
                 loadPostBySlug(postSlug);
                 return;
             }
             
+            // Check for legacy edit parameter
             const editFilename = urlParams.get('edit');
             if (editFilename) {
                 loadPostForEditing(editFilename);
@@ -1054,7 +1057,9 @@ ${markdownContent}`;
                 const matchingFile = files.find(file => {
                     if (!file.name.endsWith('.md')) return false;
                     const fileSlug = file.name.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
-                    return fileSlug === slug;
+                    const normalizedFileSlug = slugify(fileSlug);
+                    const normalizedInputSlug = slugify(slug);
+                    return normalizedFileSlug === normalizedInputSlug || fileSlug === slug;
                 });
 
                 if (matchingFile) {
