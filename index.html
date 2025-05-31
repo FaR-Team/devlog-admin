@@ -14,6 +14,55 @@
         .text-left { text-align: left; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
+        #imageUpload { display: none; }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #0d6efd;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .username {
+            font-weight: bold;
+            margin: 0;
+            font-size: 14px;
+        }
+        .logout-btn {
+            font-size: 12px;
+            padding: 2px 8px;
+            margin-top: 2px;
+        }
+        .tag-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .tag-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        .markdown-preview {
+            background: white;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -25,6 +74,13 @@
                                 <h1 class="h2">Bloggern't</h1>
                                 <div class="btn-toolbar mb-2 mb-md-0">
                                     <button id="login" class="btn btn-primary">Login with GitHub</button>
+                                    <div id="userProfile" class="user-profile" style="display: none;">
+                                        <div class="user-info">
+                                            <p class="username" id="username"></p>
+                                            <button id="logout" class="btn btn-outline-secondary btn-sm logout-btn">Logout</button>
+                                        </div>
+                                        <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+                                    </div>
                                 </div>
                             </div>
 
@@ -35,11 +91,13 @@
 
                     <div class="mb-3">
                         <textarea id="editor"></textarea>
+                        <input type="file" id="imageUpload" accept="image/*">
                     </div>
                       <div class="mb-3">
                           <button type="submit" class="btn btn-primary">Publish</button>
                           <button type="button" id="saveButton" class="btn btn-secondary">Save</button>
                           <button type="button" id="previewButton" class="btn btn-info">Preview</button>
+                          <button type="button" id="previewMarkdownButton" class="btn btn-warning">Preview Markdown</button>
                       </div>
                   </form>
             </main>
@@ -55,8 +113,38 @@
                         <input type="datetime-local" class="form-control" id="date" required>
                     </div>
                     <div class="mb-3">
-                        <label for="tags" class="form-label">Labels</label>
-                        <input type="text" class="form-control" id="tags" placeholder="Enter labels, comma-separated">
+                        <label for="project" class="form-label">Project</label>
+                        <select class="form-select" id="project" required>
+                            <option value="">Select a project</option>
+                            <option value="roommakers">Room Makers</option>
+                            <option value="farmoxel">Farmoxel</option>
+                            <option value="kta">KTA</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tags</label>
+                        <div class="tag-selection">
+                            <div class="tag-checkbox">
+                                <input type="checkbox" id="tag-devlog" value="Devlog">
+                                <label for="tag-devlog">Devlog</label>
+                            </div>
+                            <div class="tag-checkbox">
+                                <input type="checkbox" id="tag-other" value="Other">
+                                <label for="tag-other">Other</label>
+                            </div>
+                            <div class="tag-checkbox">
+                                <input type="checkbox" id="tag-characters" value="Characters">
+                                <label for="tag-characters">Characters</label>
+                            </div>
+                            <div class="tag-checkbox">
+                                <input type="checkbox" id="tag-art" value="Art">
+                                <label for="tag-art">Art</label>
+                            </div>
+                            <div class="tag-checkbox">
+                                <input type="checkbox" id="tag-event" value="Event">
+                                <label for="tag-event">Event</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="permalink" class="form-label">Permalink</label>
@@ -90,6 +178,11 @@
     <script type="module">
         import { Octokit } from 'https://esm.sh/@octokit/rest';
         
+        function customImageUpload(editor) {
+            const input = document.getElementById('imageUpload');
+            input.click();
+        }
+
         let simplemde = new SimpleMDE({
             element: document.getElementById("editor"),
             spellChecker: false,
@@ -108,7 +201,19 @@
                 }, "|",
                 "bold", "italic", "heading", "|",
                 "quote", "unordered-list", "ordered-list", "|",
-                "link", "image",
+                "link", 
+                {
+                    name: "image",
+                    action: customImageUpload,
+                    className: "fa fa-picture-o",
+                    title: "Upload Image",
+                },
+                {
+                    name: "horizontal-rule",
+                    action: insertHorizontalRule,
+                    className: "fa fa-minus",
+                    title: "Insert Horizontal Line",
+                },
                 "|",
                 {
                     name: "align-left",
@@ -140,6 +245,40 @@
             console.log('Auto-saved');
         }
 
+        async function updateUserProfile() {
+            const token = getAuthToken();
+            if (!token) return;
+
+            try {
+                const octokit = new Octokit({ auth: token });
+                const { data: user } = await octokit.rest.users.getAuthenticated();
+                
+                document.getElementById('username').textContent = user.login;
+                document.getElementById('userAvatar').src = user.avatar_url;
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('userProfile').style.display = 'flex';
+            } catch (error) {
+                console.error('Failed to fetch user profile:', error);
+                logout();
+            }
+        }
+
+        function logout() {
+            window.AUTH_TOKEN = null;
+            localStorage.removeItem('github_token');
+            document.getElementById('login').style.display = 'block';
+            document.getElementById('userProfile').style.display = 'none';
+        }
+
+        function getSelectedTags() {
+            const tags = [];
+            const checkboxes = document.querySelectorAll('.tag-selection input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                tags.push(checkbox.value);
+            });
+            return tags;
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Set default date to now
             const now = new Date();
@@ -152,6 +291,26 @@
             if (savedContent) simplemde.value(savedContent);
 
             autoSaveInterval = setInterval(autoSave, 60000);
+
+            const savedToken = localStorage.getItem('github_token');
+            if (savedToken) {
+                window.AUTH_TOKEN = savedToken;
+                updateUserProfile();
+            }
+        });
+
+        document.getElementById('logout').addEventListener('click', logout);
+
+        document.getElementById('imageUpload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    const imageUrl = await uploadImageToGitHub(file);
+                    simplemde.codemirror.replaceSelection(`![](${imageUrl})`);
+                } catch (error) {
+                    console.error('Failed to upload image:', error);
+                }
+            }
         });
 
         document.getElementById('previewButton').addEventListener('click', () => {
@@ -168,6 +327,54 @@
 
             const previewWindow = window.open();
             previewWindow.document.write(previewContent);
+            previewWindow.document.close();
+        });
+
+        document.getElementById('previewMarkdownButton').addEventListener('click', () => {
+            const title = document.getElementById('title').value;
+            const project = document.getElementById('project').value;
+            
+            if (!title) {
+                alert('Please enter a title');
+                return;
+            }
+            
+            if (!project) {
+                alert('Please select a project');
+                return;
+            }
+
+            const markdownContent = generatePostContent();
+
+            const previewWindow = window.open('', '_blank', 'width=800,height=600');
+            previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Markdown Preview</title>
+                    <style>
+                        body { 
+                            font-family: monospace; 
+                            padding: 20px; 
+                            background: #f5f5f5; 
+                        }
+                        .markdown-preview {
+                            background: white;
+                            padding: 20px;
+                            border: 1px solid #ddd;
+                            border-radius: 5px;
+                            white-space: pre-wrap;
+                            max-height: 80vh;
+                            overflow-y: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h2>Raw Markdown Output</h2>
+                    <div class="markdown-preview">${markdownContent.replace(/</g, '<').replace(/>/g, '>')}</div>
+                </body>
+                </html>
+            `);
             previewWindow.document.close();
         });
 
@@ -202,11 +409,14 @@
                 async function publishPost() {
                     try {
                         const title = document.getElementById('title').value;
-                        console.log('Publishing post:', title);
-                        console.log('Date selected:', document.getElementById('date').value);
-        
+                        const project = document.getElementById('project').value;
+                        
+                        if (!project) {
+                            alert('Please select a project');
+                            return;
+                        }
+
                         const content = generatePostContent();
-                        console.log('Generated content:', content);
 
                         await createPost(title, content);
                         alert('Post published to GitHub!');
@@ -222,25 +432,40 @@
                 function generatePostContent() {
                     const title = document.getElementById('title').value;
                     const dateInput = document.getElementById('date');
-                    console.log('Raw date input:', dateInput.value);
-    
                     const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
-                    console.log('Parsed date:', selectedDate);
-    
-                    const formattedDate = selectedDate.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' +0000');
-                    console.log('Formatted date:', formattedDate);
-
-                    const tags = document.getElementById('tags').value.split(',').map(tag => tag.trim());
-                    const comments = document.getElementById('comments').value;
-                    const sharing = document.getElementById('sharing').value;
+                    const formattedDate = selectedDate.toISOString().split('T')[0];
+                    const project = document.getElementById('project').value;
+                    const selectedTags = getSelectedTags();
                     const markdownContent = simplemde.value().trim();
 
-                    return `${markdownContent}`;
+                    const frontMatter = `---
+layout: post
+title: "${title}"
+date: ${formattedDate}
+project: ${project}
+tags: [${selectedTags.join(', ')}]
+---
+
+${markdownContent}`;
+
+                    return frontMatter;
                 }
         document.getElementById('saveButton').addEventListener('click', () => {
             autoSave();
             alert('Post saved as draft');
         });
+
+        function insertHorizontalRule(editor) {
+            const cm = editor.codemirror;
+            const cursor = cm.getCursor();
+            const line = cm.getLine(cursor.line);
+            
+            if (line.trim() === '') {
+                cm.replaceRange('---', cursor);
+            } else {
+                cm.replaceRange('\n\n---\n\n', cursor);
+            }
+        }
 
         function alignLeft(editor) {
             wrapTextWithDiv(editor, 'text-align: left;');
@@ -325,8 +550,7 @@
         }
 
         function getAuthToken() {
-            console.log('Auth token available:', !!window.AUTH_TOKEN);
-            return window.AUTH_TOKEN;
+            return window.AUTH_TOKEN || localStorage.getItem('github_token');
         }
 
         function generateImageFilename(originalFilename) {
@@ -338,13 +562,11 @@
         
         const GITHUB_CLIENT_ID = 'Ov23liRLEzfDmfWE4Wap';
         
-        // Add OAuth login button
         document.getElementById('login').addEventListener('click', () => {
             const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://devlog-admin.netlify.app/index.html')}&scope=repo`;
             window.location.href = authUrl;
         });
         
-        // Handle OAuth callback
         if (window.location.search.includes('code=')) {
             const code = new URLSearchParams(window.location.search).get('code');
             exchangeCodeForToken(code);
@@ -357,6 +579,7 @@
           if (data.access_token) {
             window.AUTH_TOKEN = data.access_token
             localStorage.setItem('github_token', data.access_token)
+            updateUserProfile();
           }
         }
         
