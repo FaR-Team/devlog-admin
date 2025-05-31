@@ -545,6 +545,28 @@
     <script type="module">
         import { Octokit } from 'https://esm.sh/@octokit/rest';
         
+        function slugify(text) {
+            return text
+                .toString()
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/ñ/g, 'n')
+                .replace(/ç/g, 'c')
+                .replace(/ß/g, 'ss')
+                .replace(/æ/g, 'ae')
+                .replace(/œ/g, 'oe')
+                .replace(/ø/g, 'o')
+                .replace(/å/g, 'a')
+                .replace(/ð/g, 'd')
+                .replace(/þ/g, 'th')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        window.slugify = slugify;
+        
         function customImageUpload(editor) {
             const input = document.getElementById('imageUpload');
             input.click();
@@ -1027,16 +1049,18 @@ ${markdownContent}`;
             const path = window.location.pathname;
             const urlParams = new URLSearchParams(window.location.search);
             
-            // Check for edit URLs like /edit/post-title
+            console.log('Current path:', path);
+            
             if (path.startsWith('/edit/')) {
                 const postSlug = decodeURIComponent(path.replace('/edit/', ''));
+                console.log('Decoded slug:', postSlug);
                 loadPostBySlug(postSlug);
                 return;
             }
             
-            // Check for legacy edit parameter
             const editFilename = urlParams.get('edit');
             if (editFilename) {
+                console.log('Legacy edit parameter:', editFilename);
                 loadPostForEditing(editFilename);
                 return;
             }
@@ -1044,7 +1068,12 @@ ${markdownContent}`;
 
         async function loadPostBySlug(slug) {
             const token = getAuthToken();
-            if (!token) return;
+            if (!token) {
+                console.log('No auth token available');
+                return;
+            }
+
+            console.log('Looking for post with slug:', slug);
 
             try {
                 const octokit = new Octokit({ auth: token });
@@ -1054,24 +1083,45 @@ ${markdownContent}`;
                     path: '_posts'
                 });
 
+                console.log('Found files:', files.map(f => f.name));
+
                 const matchingFile = files.find(file => {
                     if (!file.name.endsWith('.md')) return false;
+                    
                     const fileSlug = file.name.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
+                    if (fileSlug === slug) {
+                        console.log('Exact match found:', file.name);
+                        return true;
+                    }
+                    
                     const normalizedFileSlug = slugify(fileSlug);
                     const normalizedInputSlug = slugify(slug);
-                    return normalizedFileSlug === normalizedInputSlug || fileSlug === slug;
+                    if (normalizedFileSlug === normalizedInputSlug) {
+                        console.log('Slugified match found:', file.name);
+                        return true;
+                    }
+                    
+                    if (fileSlug.toLowerCase() === slug.toLowerCase()) {
+                        console.log('Case-insensitive match found:', file.name);
+                        return true;
+                    }
+                    
+                    return false;
                 });
 
                 if (matchingFile) {
+                    console.log('Loading post:', matchingFile.name);
                     await loadPostForEditing(matchingFile.name);
-                    window.history.replaceState({}, document.title, `/edit/${slug}`);
+                    window.history.replaceState({}, document.title, `/edit/${encodeURIComponent(slug)}`);
                 } else {
+                    console.error('No matching file found for slug:', slug);
+                    console.log('Available slugs:', files.filter(f => f.name.endsWith('.md')).map(f => f.name.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '')));
                     alert('Post not found');
                     window.location.href = '/posts';
                 }
             } catch (error) {
                 console.error('Failed to find post:', error);
-                alert('Failed to load post');
+                alert('Failed to load post: ' + error.message);
                 window.location.href = '/posts';
             }
         }
