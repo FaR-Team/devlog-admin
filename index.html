@@ -437,6 +437,7 @@
     <header class="main-header">
         <div class="logo">Bloggern't</div>
         <div class="header-actions">
+            <a href="posts.html" class="btn-blogger-secondary">Posts</a>
             <button id="login" class="btn-blogger">Sign in with GitHub</button>
             <div id="userProfile" class="user-profile" style="display: none;">
                 <div class="user-info">
@@ -791,8 +792,17 @@
                         auth: getAuthToken()
                     });
 
-                    const path = `_posts/${generateFileName(title)}`;
-                    const message = `Add new post: ${title}`;
+                    let path, message;
+                    
+                    if (window.editingFilename) {
+                        // Updating existing post
+                        path = `_posts/${window.editingFilename}`;
+                        message = `Update post: ${title}`;
+                    } else {
+                        // Creating new post
+                        path = `_posts/${generateFileName(title)}`;
+                        message = `Add new post: ${title}`;
+                    }
 
                     await octokit.rest.repos.createOrUpdateFileContents({
                         owner: 'FaR-Team',
@@ -816,10 +826,18 @@
                         const content = generatePostContent();
 
                         await createPost(title, content);
-                        alert('Post published to GitHub!');
-        
+                        
+                        const action = window.editingFilename ? 'updated' : 'published';
+                        alert(`Post ${action} successfully!`);
+
                         localStorage.removeItem('autoSaveTitle');
                         localStorage.removeItem('autoSaveContent');
+                        
+                        // Reset editing state
+                        window.editingFilename = null;
+                        document.querySelector('.logo').textContent = 'Bloggern\'t';
+                        document.querySelector('button[type="submit"]').textContent = 'Publish';
+                        
                     } catch (error) {
                         console.error('Failed to publish post:', error);
                         alert(`Failed to publish post: ${error.message}`);
