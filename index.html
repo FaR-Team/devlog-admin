@@ -209,6 +209,12 @@
                     title: "Upload Image",
                 },
                 {
+                    name: "image-footnote",
+                    action: insertImageFootnote,
+                    className: "fa fa-sticky-note",
+                    title: "Image Footnote",
+                },
+                {
                     name: "horizontal-rule",
                     action: insertHorizontalRule,
                     className: "fa fa-minus",
@@ -235,7 +241,22 @@
                 }, "|",
                 "preview", "side-by-side", "fullscreen",
             ],
-        });        let autoSaveInterval;
+        });
+
+        function insertImageFootnote(editor) {
+            const cm = editor.codemirror;
+            const cursor = cm.getCursor();
+            const currentLine = cm.getLine(cursor.line);
+            
+            if (currentLine.trim().startsWith('![')) {
+                cm.replaceRange('\n**', {line: cursor.line + 1, ch: 0});
+                cm.setCursor({line: cursor.line + 1, ch: 2});
+            } else {
+                const nextLineStart = {line: cursor.line + 1, ch: 0};
+                cm.replaceRange('\n**', nextLineStart);
+                cm.setCursor({line: cursor.line + 1, ch: 2});
+            }
+        }        let autoSaveInterval;
 
         function autoSave() {
             const title = document.getElementById('title').value;
