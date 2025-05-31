@@ -7,200 +7,499 @@
     <title>Devlog Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; }
-        #editor { height: 500px; }
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .main-header {
+            background: #fff;
+            border-bottom: 1px solid #dadce0;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 500;
+            color: #1a73e8;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn-blogger {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-blogger:hover {
+            background: #1557b0;
+        }
+        
+        .btn-blogger-secondary {
+            background: transparent;
+            color: #1a73e8;
+            border: 1px solid #dadce0;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-blogger-secondary:hover {
+            background: #f8f9fa;
+        }
+        
+        .container-blogger {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+        }
+        
+        .main-content {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .post-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        #title {
+            border: none;
+            outline: none;
+            font-size: 32px;
+            font-weight: 400;
+            color: #202124;
+            width: 100%;
+            padding: 0;
+            background: transparent;
+            font-family: inherit;
+        }
+        
+        #title::placeholder {
+            color: #9aa0a6;
+        }
+        
+        .editor-container {
+            padding: 0;
+        }
+        
+        #editor { 
+            height: 600px;
+        }
+        
         .CodeMirror {
-            width: 716px !important;
-            margin: 0 auto !important;
+            border: none !important;
+            font-size: 16px !important;
+            line-height: 1.6 !important;
+            font-family: 'Google Sans', sans-serif !important;
+            padding: 24px !important;
+            height: 600px !important;
         }
+        
         .editor-toolbar {
-            width: 716px !important;
-            margin: 0 auto !important;
+            border: none !important;
+            background: #f8f9fa !important;
+            border-bottom: 1px solid #e8eaed !important;
+            padding: 12px 24px !important;
         }
+        
+        .editor-toolbar a {
+            color: #5f6368 !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 8px !important;
+            margin: 0 2px !important;
+        }
+        
+        .editor-toolbar a:hover {
+            background: #e8f0fe !important;
+            color: #1a73e8 !important;
+        }
+        
+        .editor-toolbar a.active {
+            background: #e8f0fe !important;
+            color: #1a73e8 !important;
+        }
+        
         .CodeMirror-fullscreen {
-            width: 100% !important;
-            margin: 0 !important;
-            padding-top: 50px !important;
+            position: fixed !important;
+            top: 110px !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: calc(100vh - 110px) !important;
+            z-index: 9999 !important;
+            background: white !important;
+            padding: 0 !important;
         }
+        
+        .CodeMirror-fullscreen .CodeMirror-scroll {
+            padding: 20px !important;
+            margin: 0 !important;
+        }
+        
+        .CodeMirror-fullscreen .CodeMirror-sizer {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        .CodeMirror-fullscreen .CodeMirror-lines {
+            padding: 0 !important;
+        }
+        
+        .CodeMirror-sided.CodeMirror-fullscreen {
+            width: 50% !important;
+            right: 50% !important;
+        }
+        
         .editor-toolbar.fullscreen {
-            width: 100% !important;
-            margin: 0 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            height: 50px !important;
+            z-index: 10000 !important;
+            background: #f8f9fa !important;
+            border-bottom: 1px solid #e8eaed !important;
         }
+        
+        .CodeMirror-fullscreen + .editor-preview-side {
+            position: fixed !important;
+            top: 110px !important;
+            right: 0 !important;
+            width: 50% !important;
+            height: calc(100vh - 110px) !important;
+            z-index: 9998 !important;
+            background: white !important;
+            border-left: 1px solid #e8eaed !important;
+        }
+        
+        body:has(.CodeMirror-fullscreen) .main-header {
+            display: none !important;
+        }
+        
+        body:has(.CodeMirror-fullscreen) .sidebar-blogger {
+            display: none !important;
+        }
+        
+        body:has(.CodeMirror-fullscreen) .action-buttons {
+            display: none !important;
+        }
+        
         body:has(.CodeMirror-fullscreen) #title {
-            display: block !important;
             position: fixed !important;
             top: 50px !important;
             left: 0 !important;
             right: 0 !important;
-            z-index: 99998 !important;
-            width: 100% !important;
-            background: #f7f7f7 !important;
+            width: 100vw !important;
+            height: 60px !important;
+            z-index: 10001 !important;
+            background: white !important;
             border: none !important;
-            border-bottom: 1px solid #ddd !important;
-            padding: 10px 20px !important;
+            border-bottom: 1px solid #e8eaed !important;
+            padding: 16px 24px !important;
             margin: 0 !important;
-            font-size: 18px !important;
-            box-shadow: none !important;
-            transform: none !important;
+            font-size: 24px !important;
+            display: block !important;
+            box-sizing: border-box !important;
         }
-        .sidebar { height: 100vh; overflow-y: auto; }
-        .text-left { text-align: left; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        #imageUpload { display: none; }
+        
+        body:has(.CodeMirror-fullscreen) {
+            overflow: hidden !important;
+        }
+        
+        .editor-side-by-side .CodeMirror {
+            width: 50% !important;
+        }
+        
+        .editor-side-by-side .editor-preview {
+            width: 50% !important;
+        }
+        
+        .sidebar-blogger {
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            height: fit-content;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+        
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #202124;
+            margin-bottom: 12px;
+        }
+        
+        .form-control-blogger {
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 14px;
+            width: 100%;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control-blogger:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        
+        .form-select-blogger {
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 12px;
+            font-size: 14px;
+            width: 100%;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .form-select-blogger:focus {
+            outline: none;
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        
+        .tag-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .tag-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #5f6368;
+        }
+        
+        .tag-checkbox input[type="checkbox"] {
+            accent-color: #1a73e8;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            background: #f8f9fa;
+            border-top: 1px solid #e8eaed;
+        }
+        
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
+        
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            border: 2px solid #0d6efd;
+            border: 2px solid #dadce0;
         }
+        
         .user-info {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
         }
+        
         .username {
-            font-weight: bold;
+            font-weight: 500;
             margin: 0;
             font-size: 14px;
+            color: #202124;
         }
+        
         .logout-btn {
             font-size: 12px;
-            padding: 2px 8px;
-            margin-top: 2px;
+            padding: 4px 8px;
+            margin-top: 4px;
+            background: transparent;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            color: #5f6368;
+            cursor: pointer;
         }
-        .tag-selection {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 5px;
+        
+        .logout-btn:hover {
+            background: #f8f9fa;
         }
-        .tag-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
+        
+        #imageUpload { 
+            display: none; 
         }
-        .markdown-preview {
-            background: white;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            max-height: 400px;
-            overflow-y: auto;
+        
+        .editor-preview {
+            font-family: 'Google Sans', sans-serif !important;
+            line-height: 1.6 !important;
+            padding: 24px !important;
+        }
+        
+        @media (max-width: 768px) {
+            .container-blogger {
+                flex-direction: column;
+                padding: 16px;
+            }
+            
+            .sidebar-blogger {
+                width: 100%;
+                order: -1;
+            }
+            
+            .main-header {
+                padding: 12px 16px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Main Content Area -->
-            <main class="col-md-9 col-lg-10 px-md-4">
-                            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                                <h1 class="h2">Bloggern't</h1>
-                                <div class="btn-toolbar mb-2 mb-md-0">
-                                    <button id="login" class="btn btn-primary">Login with GitHub</button>
-                                    <div id="userProfile" class="user-profile" style="display: none;">
-                                        <div class="user-info">
-                                            <p class="username" id="username"></p>
-                                            <button id="logout" class="btn btn-outline-secondary btn-sm logout-btn">Logout</button>
-                                        </div>
-                                        <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
-                                    </div>
-                                </div>
-                            </div>
+    <header class="main-header">
+        <div class="logo">Bloggern't</div>
+        <div class="header-actions">
+            <button id="login" class="btn-blogger">Sign in with GitHub</button>
+            <div id="userProfile" class="user-profile" style="display: none;">
+                <div class="user-info">
+                    <p class="username" id="username"></p>
+                    <button id="logout" class="logout-btn">Sign out</button>
+                </div>
+                <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
+            </div>
+        </div>
+    </header>
 
-                            <form id="postForm">
-                    <div class="mb-3">
-                        <input type="text" class="form-control form-control-lg" id="title" placeholder="Post Title" required>
-                    </div>
+    <div class="container-blogger">
+        <main class="main-content">
+            <form id="postForm">
+                <div class="post-header">
+                    <input type="text" id="title" placeholder="Title" required>
+                </div>
+                
+                <div class="editor-container">
+                    <textarea id="editor"></textarea>
+                    <input type="file" id="imageUpload" accept="image/*">
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="submit" class="btn-blogger">Publish</button>
+                    <button type="button" id="saveButton" class="btn-blogger-secondary">Save draft</button>
+                    <button type="button" id="previewButton" class="btn-blogger-secondary">Preview</button>
+                    <button type="button" id="previewMarkdownButton" class="btn-blogger-secondary">View markdown</button>
+                </div>
+            </form>
+        </main>
 
-                    <div class="mb-3">
-                        <textarea id="editor"></textarea>
-                        <input type="file" id="imageUpload" accept="image/*">
+        <aside class="sidebar-blogger">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Publish</div>
+                <label for="date">Date</label>
+                <input type="datetime-local" class="form-control-blogger" id="date" required>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Project</div>
+                <select class="form-select-blogger" id="project" required>
+                    <option value="">Choose project</option>
+                    <option value="roommakers">Room Makers</option>
+                    <option value="farmoxel">Farmoxel</option>
+                    <option value="kta">KTA</option>
+                </select>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Labels</div>
+                <div class="tag-selection">
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-devlog" value="Devlog">
+                        <label for="tag-devlog">Devlog</label>
                     </div>
-                      <div class="mb-3">
-                          <button type="submit" class="btn btn-primary">Publish</button>
-                          <button type="button" id="saveButton" class="btn btn-secondary">Save</button>
-                          <button type="button" id="previewButton" class="btn btn-info">Preview</button>
-                          <button type="button" id="previewMarkdownButton" class="btn btn-warning">Preview Markdown</button>
-                      </div>
-                  </form>
-            </main>
-
-            <!-- Right Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar order-first">
-                <div class="position-sticky">
-                    <h4 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Post Settings</span>
-                    </h4>
-                    <div class="mb-3">
-                        <label for="date" class="form-label">Publish Date</label>
-                        <input type="datetime-local" class="form-control" id="date" required>
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-other" value="Other">
+                        <label for="tag-other">Other</label>
                     </div>
-                    <div class="mb-3">
-                        <label for="project" class="form-label">Project</label>
-                        <select class="form-select" id="project" required>
-                            <option value="">Select a project</option>
-                            <option value="roommakers">Room Makers</option>
-                            <option value="farmoxel">Farmoxel</option>
-                            <option value="kta">KTA</option>
-                        </select>
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-characters" value="Characters">
+                        <label for="tag-characters">Characters</label>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tags</label>
-                        <div class="tag-selection">
-                            <div class="tag-checkbox">
-                                <input type="checkbox" id="tag-devlog" value="Devlog">
-                                <label for="tag-devlog">Devlog</label>
-                            </div>
-                            <div class="tag-checkbox">
-                                <input type="checkbox" id="tag-other" value="Other">
-                                <label for="tag-other">Other</label>
-                            </div>
-                            <div class="tag-checkbox">
-                                <input type="checkbox" id="tag-characters" value="Characters">
-                                <label for="tag-characters">Characters</label>
-                            </div>
-                            <div class="tag-checkbox">
-                                <input type="checkbox" id="tag-art" value="Art">
-                                <label for="tag-art">Art</label>
-                            </div>
-                            <div class="tag-checkbox">
-                                <input type="checkbox" id="tag-event" value="Event">
-                                <label for="tag-event">Event</label>
-                            </div>
-                        </div>
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-art" value="Art">
+                        <label for="tag-art">Art</label>
                     </div>
-                    <div class="mb-3">
-                        <label for="permalink" class="form-label">Permalink</label>
-                        <input type="text" class="form-control" id="permalink">
-                    </div>
-                    <div class="mb-3">
-                        <label for="comments" class="form-label">Comments</label>
-                        <select class="form-select" id="comments">
-                            <option value="allow">Allow</option>
-                            <option value="disallow">Disallow</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="sharing" class="form-label">Sharing</label>
-                        <select class="form-select" id="sharing">
-                            <option value="allow">Allow</option>
-                            <option value="disallow">Disallow</option>
-                        </select>
+                    <div class="tag-checkbox">
+                        <input type="checkbox" id="tag-event" value="Event">
+                        <label for="tag-event">Event</label>
                     </div>
                 </div>
             </div>
-        </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Permalink</div>
+                <input type="text" class="form-control-blogger" id="permalink" placeholder="Custom URL">
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Reader comments</div>
+                <select class="form-select-blogger" id="comments">
+                    <option value="allow">Allow</option>
+                    <option value="disallow">Don't allow</option>
+                </select>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Sharing</div>
+                <select class="form-select-blogger" id="sharing">
+                    <option value="allow">Allow</option>
+                    <option value="disallow">Don't allow</option>
+                </select>
+            </div>
+        </aside>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -671,6 +970,7 @@ ${markdownContent}`;
             const formattedTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
             return `${formattedDate}-${formattedTitle}.md`;
         }
+
     </script>
 </body>
 </html>
