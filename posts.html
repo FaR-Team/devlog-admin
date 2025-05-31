@@ -358,10 +358,14 @@
         }
 
         window.editPost = function(filename) {
+            console.log('Editing post:', filename);
             // Remove the .md extension and date prefix for cleaner URLs
             const cleanName = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
+            console.log('Clean name:', cleanName);
             // Properly encode the URL to handle special characters
-            window.location.href = `edit/${encodeURIComponent(cleanName)}`;
+            const encodedName = encodeURIComponent(cleanName);
+            console.log('Encoded name:', encodedName);
+            window.location.href = `/edit/${encodedName}`;
         };
 
         function slugify(text) {
