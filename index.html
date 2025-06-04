@@ -823,7 +823,7 @@
                         repo: 'devlog',
                         path: path,
                         message: message,
-                        content: btoa(content),
+                        content: btoa(unescape(encodeURIComponent(content))),
                         branch: DEVLOG_BRANCH
                     };
 
