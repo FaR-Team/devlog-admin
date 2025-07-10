@@ -167,9 +167,8 @@
         }
         
         function getSlugFromPath() {
-            const path = window.location.pathname;
-            const slug = path.split('/edit/')[1];
-            return decodeURIComponent(slug);
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('post');
         }
         
         async function loadPost() {
