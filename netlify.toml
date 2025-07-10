@@ -5,3 +5,8 @@
   from = "/devlog-admin/callback"
   to = "/admin.html"
   status = 200
+
+[[redirects]]
+  from = "/edit/*"
+  to = "/edit.html"
+  status = 200
