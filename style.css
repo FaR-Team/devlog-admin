@@ -1,17 +1,46 @@
 * {
             box-sizing: border-box;
         }
-        
-        body { 
-            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-            margin: 0;
-            padding: 0;
-        }
+
+:root {
+    /* Color system */
+    --bg: #f8f9fa;
+    --surface: #ffffff;
+    --surface-2: #f1f3f4;
+    --text: #202124;
+    --muted: #5f6368;
+    --primary: #1a73e8;
+    --primary-700: #1557b0;
+    --border: #dadce0;
+    --chip-bg: #e8f0fe;
+}
+
+.dark {
+    --bg: #0b0c0d;
+    --surface: #0f1112;
+    --surface-2: #171819;
+    --text: #e6e6e6;
+    --muted: #9aa0a6;
+    --primary: #8ab4ff;
+    --primary-700: #6d9eff;
+    --border: #262626;
+    --chip-bg: rgba(138,180,255,0.08);
+}
+
+* { box-sizing: border-box; }
+
+body { 
+    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    transition: background 0.2s ease, color 0.2s ease;
+}
         
         .main-header {
-            background: #fff;
-            border-bottom: 1px solid #dadce0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
             padding: 12px 24px;
             display: flex;
             justify-content: space-between;
@@ -24,7 +53,7 @@
         .logo {
             font-size: 22px;
             font-weight: 500;
-            color: #1a73e8;
+            color: var(--primary);
         }
         
         .header-actions {
@@ -34,8 +63,8 @@
         }
         
         .btn-blogger {
-            background: #1a73e8;
-            color: white;
+            background: var(--primary);
+            color: #fff;
             border: none;
             padding: 8px 16px;
             border-radius: 4px;
@@ -46,13 +75,13 @@
         }
         
         .btn-blogger:hover {
-            background: #1557b0;
+            background: var(--primary-700);
         }
         
         .btn-blogger-secondary {
             background: transparent;
-            color: #1a73e8;
-            border: 1px solid #dadce0;
+            color: var(--primary);
+            border: 1px solid var(--border);
             padding: 8px 16px;
             border-radius: 4px;
             font-weight: 500;
@@ -62,7 +91,7 @@
         }
         
         .btn-blogger-secondary:hover {
-            background: #f8f9fa;
+            background: var(--surface-2);
         }
         
         .container-blogger {
@@ -75,7 +104,7 @@
         
         .main-content {
             flex: 1;
-            background: white;
+            background: var(--surface);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow: hidden;
@@ -91,7 +120,7 @@
             outline: none;
             font-size: 32px;
             font-weight: 400;
-            color: #202124;
+            color: var(--text);
             width: 100%;
             padding: 0;
             background: transparent;
@@ -121,8 +150,8 @@
         
         .editor-toolbar {
             border: none !important;
-            background: #f8f9fa !important;
-            border-bottom: 1px solid #e8eaed !important;
+            background: var(--bg) !important;
+            border-bottom: 1px solid var(--surface-2) !important;
             padding: 12px 24px !important;
         }
         
@@ -135,8 +164,8 @@
         }
         
         .editor-toolbar a:hover {
-            background: #e8f0fe !important;
-            color: #1a73e8 !important;
+            background: var(--chip-bg) !important;
+            color: var(--primary) !important;
         }
         
         .editor-toolbar a.active {
@@ -153,7 +182,7 @@
             width: 716px !important;
             height: calc(100vh - 110px) !important;
             z-index: 9999 !important;
-            background: white !important;
+            background: var(--surface) !important;
             padding: 0 !important;
             transform: translateX(-50%) !important;
         }
@@ -204,8 +233,8 @@
             width: 716px !important;
             height: calc(100vh - 110px) !important;
             z-index: 9998 !important;
-            background: white !important;
-            border-left: 1px solid #e8eaed !important;
+            background: var(--surface) !important;
+            border-left: 1px solid var(--surface-2) !important;
             overflow-x: hidden !important;
             word-wrap: break-word !important;
             box-sizing: border-box !important;
@@ -276,7 +305,7 @@
         
         .sidebar-blogger {
             width: 300px;
-            background: white;
+            background: var(--surface);
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             padding: 24px;
@@ -290,12 +319,12 @@
         .sidebar-title {
             font-size: 16px;
             font-weight: 500;
-            color: #202124;
+            color: var(--text);
             margin-bottom: 12px;
         }
         
         .form-control-blogger {
-            border: 1px solid #dadce0;
+            border: 1px solid var(--border);
             border-radius: 4px;
             padding: 12px;
             font-size: 14px;
@@ -311,7 +340,7 @@
         }
         
         .form-select-blogger {
-            border: 1px solid #dadce0;
+            border: 1px solid var(--border);
             border-radius: 4px;
             padding: 12px;
             font-size: 14px;
@@ -339,19 +368,19 @@
             align-items: center;
             gap: 6px;
             font-size: 14px;
-            color: #5f6368;
+            color: var(--muted);
         }
         
         .tag-checkbox input[type="checkbox"] {
-            accent-color: #1a73e8;
+            accent-color: var(--primary);
         }
         
         .action-buttons {
             display: flex;
             gap: 12px;
             padding: 16px 24px;
-            background: #f8f9fa;
-            border-top: 1px solid #e8eaed;
+            background: var(--bg);
+            border-top: 1px solid var(--surface-2);
         }
         
         .user-profile {
@@ -364,7 +393,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            border: 2px solid #dadce0;
+            border: 2px solid var(--border);
         }
         
         .user-info {
