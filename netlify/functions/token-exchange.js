@@ -1,8 +1,29 @@
 const fetch = require('node-fetch')
 
 exports.handler = async (event) => {
-  const code = event.queryStringParameters.code
-  
+  const ALLOWED_ORIGIN = 'https://admin.blog.farteam.com.ar'
+
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers: {
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+        'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
+      body: ''
+    }
+  }
+
+  const code = event.queryStringParameters && event.queryStringParameters.code
+  if (!code) {
+    return {
+      statusCode: 400,
+      headers: { 'Access-Control-Allow-Origin': ALLOWED_ORIGIN },
+      body: JSON.stringify({ error: 'Missing code query parameter' })
+    }
+  }
+
   const response = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
     headers: {
@@ -20,6 +41,11 @@ exports.handler = async (event) => {
 
   return {
     statusCode: 200,
+    headers: {
+      'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+      'Access-Control-Allow-Credentials': 'true',
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify(data)
   }
 }
