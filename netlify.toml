@@ -3,10 +3,24 @@
 
 [[redirects]]
   from = "/devlog-admin/callback"
-  to = "/admin.html"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  # Support a simple callback path in case you register this URL in the OAuth app
+  from = "/callback"
+  to = "/index.html"
   status = 200
 
 [[redirects]]
   from = "/edit/*"
   to = "/edit.html"
   status = 200
+
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://admin.blog.farteam.com.ar"
+    Access-Control-Allow-Credentials = "true"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"

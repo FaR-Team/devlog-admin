@@ -1,2 +1,6 @@
-/edit/* /index.html 200
+/edit/* /edit.html 200
+
 /posts /posts.html 200
+
+/callback /index.html 200
+/devlog-admin/callback /index.html 200
