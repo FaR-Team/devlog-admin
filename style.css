@@ -13,6 +13,8 @@
     --primary-700: #1557b0;
     --border: #dadce0;
     --chip-bg: #e8f0fe;
+    --danger: #d93025;
+    --danger-text: #ffffff;
 }
 
 .dark {
@@ -25,6 +27,8 @@
     --primary-700: #6d9eff;
     --border: #262626;
     --chip-bg: rgba(138,180,255,0.08);
+    --danger: #ff726f;
+    --danger-text: #111111;
 }
 
 * { box-sizing: border-box; }
@@ -98,6 +102,10 @@ body {
             max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
+        }
+
+        /* Editor layout only when explicitly requested */
+        .container-blogger.editor-layout {
             display: flex;
             gap: 24px;
         }
@@ -156,7 +164,7 @@ body {
         }
         
         .editor-toolbar a {
-            color: #5f6368 !important;
+            color: var(--muted) !important;
             border: none !important;
             border-radius: 4px !important;
             padding: 8px !important;
@@ -169,8 +177,8 @@ body {
         }
         
         .editor-toolbar a.active {
-            background: #e8f0fe !important;
-            color: #1a73e8 !important;
+            background: var(--chip-bg) !important;
+            color: var(--primary) !important;
         }
         
         .CodeMirror-fullscreen {
@@ -222,8 +230,8 @@ body {
             width: 100vw !important;
             height: 50px !important;
             z-index: 10000 !important;
-            background: #f8f9fa !important;
-            border-bottom: 1px solid #e8eaed !important;
+            background: var(--bg) !important;
+            border-bottom: 1px solid var(--surface-2) !important;
         }
         
         .CodeMirror-fullscreen + .editor-preview-side {
@@ -281,9 +289,9 @@ body {
             width: 100vw !important;
             height: 60px !important;
             z-index: 10001 !important;
-            background: white !important;
+            background: var(--surface) !important;
             border: none !important;
-            border-bottom: 1px solid #e8eaed !important;
+            border-bottom: 1px solid var(--surface-2) !important;
             padding: 16px 24px !important;
             margin: 0 !important;
             font-size: 24px !important;
@@ -331,12 +339,14 @@ body {
             width: 100%;
             font-family: inherit;
             transition: border-color 0.2s;
+            background: var(--surface);
+            color: var(--text);
         }
         
         .form-control-blogger:focus {
             outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(138,180,255,0.12);
         }
         
         .form-select-blogger {
@@ -346,14 +356,15 @@ body {
             font-size: 14px;
             width: 100%;
             font-family: inherit;
-            background: white;
+            background: var(--surface);
+            color: var(--text);
             cursor: pointer;
         }
         
         .form-select-blogger:focus {
             outline: none;
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(138,180,255,0.12);
         }
         
         .tag-selection {
@@ -373,6 +384,28 @@ body {
         
         .tag-checkbox input[type="checkbox"] {
             accent-color: var(--primary);
+        }
+
+        /* Ensure bootstrap .form-control adapts to theme */
+        .form-control, input, textarea, select {
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        /* Danger button */
+        .btn-danger {
+            background: var(--danger);
+            color: var(--danger-text);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(0.95);
         }
         
         .action-buttons {
@@ -406,7 +439,7 @@ body {
             font-weight: 500;
             margin: 0;
             font-size: 14px;
-            color: #202124;
+            color: var(--text);
         }
         
         .logout-btn {
@@ -414,14 +447,14 @@ body {
             padding: 4px 8px;
             margin-top: 4px;
             background: transparent;
-            border: 1px solid #dadce0;
+            border: 1px solid var(--border);
             border-radius: 4px;
-            color: #5f6368;
+            color: var(--muted);
             cursor: pointer;
         }
         
         .logout-btn:hover {
-            background: #f8f9fa;
+            background: var(--bg);
         }
         
         #imageUpload { 
@@ -435,7 +468,7 @@ body {
         }
         
         @media (max-width: 768px) {
-            .container-blogger {
+            .container-blogger.editor-layout {
                 flex-direction: column;
                 padding: 16px;
             }
