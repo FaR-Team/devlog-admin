@@ -43,6 +43,8 @@
                 </div>
 
                 <div class="action-buttons">
+                    <span id="saveStatus"
+                        style="font-size: 14px; color: var(--muted); margin-right: 12px; font-style: italic;"></span>
                     <button type="submit" class="btn-blogger">Publish</button>
                     <button type="button" id="saveButton" class="btn-blogger-secondary">Save draft</button>
                     <button type="button" id="previewButton" class="btn-blogger-secondary">Preview</button>
@@ -276,14 +278,52 @@
                 cm.replaceRange('\n**', nextLineStart);
                 cm.setCursor({ line: cursor.line + 1, ch: 2 });
             }
-        } let autoSaveInterval;
+        }
+
+        function getDraftKey() {
+            if (window.editingFilename) {
+                return `draft_${window.editingFilename}`;
+            }
+            return 'draft_new';
+        }
+
+        function updateSaveStatus(status) {
+            const statusEl = document.getElementById('saveStatus');
+            if (!statusEl) return;
+
+            if (status === 'saving') {
+                statusEl.textContent = 'Saving...';
+            } else if (status === 'saved') {
+                statusEl.textContent = 'Changes saved to device';
+                statusEl.style.color = 'var(--muted)';
+            } else if (status === 'unsaved') {
+                statusEl.textContent = 'Unsaved changes...';
+                statusEl.style.color = '#e37400';
+            }
+        }
 
         function autoSave() {
             const title = document.getElementById('title').value;
             const content = simplemde.value();
-            localStorage.setItem('autoSaveTitle', title);
-            localStorage.setItem('autoSaveContent', content);
-            console.log('Auto-saved');
+            const project = document.getElementById('project').value;
+            const date = document.getElementById('date').value;
+            const tags = getSelectedTags();
+
+            if (!title && !content) return;
+
+            const draftData = {
+                title,
+                content,
+                project,
+                date,
+                tags,
+                timestamp: new Date().getTime()
+            };
+
+            const key = getDraftKey();
+            localStorage.setItem(key, JSON.stringify(draftData));
+            updateSaveStatus('saved');
+            console.log(`Auto-saved to ${key}`);
         }
 
         async function updateUserProfile() {
@@ -325,23 +365,60 @@
             const dateInput = document.getElementById('date');
             dateInput.value = now.toISOString().slice(0, 16);
 
-            const savedTitle = localStorage.getItem('autoSaveTitle');
-            const savedContent = localStorage.getItem('autoSaveContent');
-            if (savedTitle) document.getElementById('title').value = savedTitle;
-            if (savedContent) simplemde.value(savedContent);
+            simplemde.codemirror.on('change', () => {
+                updateSaveStatus('unsaved');
+                clearTimeout(window.autoSaveTimeout);
+                window.autoSaveTimeout = setTimeout(autoSave, 1000);
+            });
 
-            autoSaveInterval = setInterval(autoSave, 60000);
+            document.getElementById('title').addEventListener('input', () => {
+                updateSaveStatus('unsaved');
+                clearTimeout(window.autoSaveTimeout);
+                window.autoSaveTimeout = setTimeout(autoSave, 1000);
+            });
 
             const savedToken = localStorage.getItem('github_token');
             if (savedToken) {
                 window.AUTH_TOKEN = savedToken;
                 updateUserProfile();
-            }
-
-            if (savedToken) {
                 handleRouting();
+            } else if (!window.location.search.includes('code=')) {
+                checkForNewDraft();
             }
         });
+
+        function checkForNewDraft() {
+            const savedDraft = localStorage.getItem('draft_new');
+            if (savedDraft) {
+                try {
+                    const draft = JSON.parse(savedDraft);
+
+                    const shouldRestore = confirm('Found an unsaved draft for a new post. Would you like to restore it?');
+
+                    if (shouldRestore) {
+                        restoreDraft(draft);
+                    }
+                } catch (e) {
+                    console.error('Error parsing draft:', e);
+                }
+            }
+        }
+
+        function restoreDraft(draft) {
+            if (draft.title) document.getElementById('title').value = draft.title;
+            if (draft.content) simplemde.value(draft.content);
+            if (draft.project) document.getElementById('project').value = draft.project;
+            if (draft.date) document.getElementById('date').value = draft.date;
+
+            if (draft.tags) {
+                document.querySelectorAll('.tag-selection input[type="checkbox"]').forEach(cb => cb.checked = false);
+                draft.tags.forEach(tag => {
+                    const checkbox = document.querySelector(`input[value="${tag}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            updateSaveStatus('saved');
+        }
 
         document.getElementById('logout').addEventListener('click', logout);
 
@@ -486,8 +563,7 @@
 
             await publishPost(false);
 
-            localStorage.removeItem('autoSaveTitle');
-            localStorage.removeItem('autoSaveContent');
+            await publishPost(false);
         });
 
         const DEVLOG_REPO = 'FaR-Team/devlog';
@@ -551,10 +627,14 @@
                 }
 
                 const actionType = isDraft ? 'saved as draft' : (window.editingFilename ? 'updated' : 'published');
+
                 showToast(`Post ${actionType} successfully!`, 'success');
 
-                localStorage.removeItem('autoSaveTitle');
-                localStorage.removeItem('autoSaveContent');
+                const key = getDraftKey();
+                localStorage.removeItem(key);
+                if (!window.editingFilename) localStorage.removeItem('draft_new');
+
+                updateSaveStatus('');
 
                 window.location.href = 'posts.html';
 
@@ -948,6 +1028,20 @@ ${markdownContent}`;
                     cancelBtn.textContent = 'Cancel';
                     cancelBtn.onclick = cancelEditing;
                     document.querySelector('.action-buttons').appendChild(cancelBtn);
+                }
+
+                const draftKey = `draft_${filename}`;
+                const savedDraft = localStorage.getItem(draftKey);
+
+                if (savedDraft) {
+                    try {
+                        const draft = JSON.parse(savedDraft);
+                        if (confirm(`Found an unsaved draft for this post (${new Date(draft.timestamp).toLocaleString()}). Restore it?`)) {
+                            restoreDraft(draft);
+                        }
+                    } catch (e) {
+                        console.error("Error parsing local draft", e);
+                    }
                 }
 
             } catch (error) {
