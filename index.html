@@ -463,7 +463,7 @@
         document.getElementById('postForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            await publishPost(false); // false = not a draft (published)
+            await publishPost(false);
 
             localStorage.removeItem('autoSaveTitle');
             localStorage.removeItem('autoSaveContent');
@@ -500,7 +500,8 @@
                 params.sha = sha;
             }
 
-            await octokit.rest.repos.createOrUpdateFileContents(params);
+            const { data } = await octokit.rest.repos.createOrUpdateFileContents(params);
+            return data.content;
         }
         async function publishPost(isDraft = false) {
             try {
@@ -519,7 +520,14 @@
 
                 const content = generatePostContent(isDraft);
 
-                await createPost(title, content);
+                const newContent = await createPost(title, content);
+
+                if (newContent && newContent.sha) {
+                    window.editingSHA = newContent.sha;
+                    if (!window.editingFilename) {
+                        window.editingFilename = newContent.name;
+                    }
+                }
 
                 const actionType = isDraft ? 'saved as draft' : (window.editingFilename ? 'updated' : 'published');
                 alert(`Post ${actionType} successfully!`);
@@ -558,7 +566,7 @@ ${markdownContent}`;
             return frontMatter;
         }
         document.getElementById('saveButton').addEventListener('click', () => {
-            publishPost(true); // true = isDraft
+            publishPost(true);
         });
 
         function insertHorizontalRule(editor) {
@@ -708,7 +716,6 @@ ${markdownContent}`;
                     window.AUTH_TOKEN = data.access_token
                     localStorage.setItem('github_token', data.access_token)
 
-                    // Clean up URL
                     window.history.replaceState({}, document.title, window.location.pathname);
 
                     await updateUserProfile();
@@ -799,7 +806,8 @@ ${markdownContent}`;
                 const { data: files } = await octokit.rest.repos.getContent({
                     owner: 'FaR-Team',
                     repo: 'devlog',
-                    path: '_posts'
+                    path: '_posts',
+                    headers: { 'If-None-Match': '' }
                 });
 
                 console.log('Found files:', files.map(f => f.name));
@@ -854,7 +862,8 @@ ${markdownContent}`;
                 const { data: content } = await octokit.rest.repos.getContent({
                     owner: 'FaR-Team',
                     repo: 'devlog',
-                    path: `_posts/${filename}`
+                    path: `_posts/${filename}`,
+                    headers: { 'If-None-Match': '' }
                 });
 
                 const decoded = atob(content.content);
