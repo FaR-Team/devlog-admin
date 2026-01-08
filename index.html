@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.skypack.dev https://esm.sh chrome-extension:; connect-src 'self' https://api.github.com https://admin.blog.farteam.com.ar/.netlify/functions/">
+    <meta http-equiv="Content-Security-Policy"
+        content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdn.skypack.dev https://esm.sh chrome-extension:; connect-src 'self' https://api.github.com https://admin.blog.farteam.com.ar/.netlify/functions/">
     <title>Devlog Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <header class="main-header">
         <div class="logo">Bloggern't</div>
@@ -33,17 +36,18 @@
                 <div class="post-header">
                     <input type="text" id="title" placeholder="Title" required>
                 </div>
-                
+
                 <div class="editor-container">
                     <textarea id="editor"></textarea>
                     <input type="file" id="imageUpload" accept="image/*">
                 </div>
-                
+
                 <div class="action-buttons">
                     <button type="submit" class="btn-blogger">Publish</button>
                     <button type="button" id="saveButton" class="btn-blogger-secondary">Save draft</button>
                     <button type="button" id="previewButton" class="btn-blogger-secondary">Preview</button>
-                    <button type="button" id="previewMarkdownButton" class="btn-blogger-secondary">View markdown</button>
+                    <button type="button" id="previewMarkdownButton" class="btn-blogger-secondary">View
+                        markdown</button>
                 </div>
             </form>
         </main>
@@ -54,7 +58,7 @@
                 <label for="date">Date</label>
                 <input type="datetime-local" class="form-control-blogger" id="date" required>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="sidebar-title">Project</div>
                 <select class="form-select-blogger" id="project" required>
@@ -64,7 +68,7 @@
                     <option value="kta">KTA</option>
                 </select>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="sidebar-title">Labels</div>
                 <div class="tag-selection">
@@ -90,12 +94,12 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="sidebar-title">Permalink</div>
                 <input type="text" class="form-control-blogger" id="permalink" placeholder="Custom URL">
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="sidebar-title">Reader comments</div>
                 <select class="form-select-blogger" id="comments">
@@ -103,7 +107,7 @@
                     <option value="disallow">Don't allow</option>
                 </select>
             </div>
-            
+
             <div class="sidebar-section">
                 <div class="sidebar-title">Sharing</div>
                 <select class="form-select-blogger" id="sharing">
@@ -122,7 +126,7 @@
     </script>
     <script type="module">
         import { Octokit } from 'https://esm.sh/@octokit/rest';
-        
+
         function slugify(text) {
             return text
                 .toString()
@@ -144,7 +148,7 @@
         }
 
         window.slugify = slugify;
-        
+
         function customImageUpload(editor) {
             const input = document.getElementById('imageUpload');
             input.click();
@@ -190,7 +194,7 @@
                 }, "|",
                 "bold", "italic", "heading", "|",
                 "quote", "unordered-list", "ordered-list", "|",
-                "link", 
+                "link",
                 {
                     name: "image",
                     action: customImageUpload,
@@ -242,16 +246,16 @@
             const cm = editor.codemirror;
             const cursor = cm.getCursor();
             const currentLine = cm.getLine(cursor.line);
-            
+
             if (currentLine.trim().startsWith('![')) {
-                cm.replaceRange('\n**', {line: cursor.line + 1, ch: 0});
-                cm.setCursor({line: cursor.line + 1, ch: 2});
+                cm.replaceRange('\n**', { line: cursor.line + 1, ch: 0 });
+                cm.setCursor({ line: cursor.line + 1, ch: 2 });
             } else {
-                const nextLineStart = {line: cursor.line + 1, ch: 0};
+                const nextLineStart = { line: cursor.line + 1, ch: 0 };
                 cm.replaceRange('\n**', nextLineStart);
-                cm.setCursor({line: cursor.line + 1, ch: 2});
+                cm.setCursor({ line: cursor.line + 1, ch: 2 });
             }
-        }        let autoSaveInterval;
+        } let autoSaveInterval;
 
         function autoSave() {
             const title = document.getElementById('title').value;
@@ -268,7 +272,7 @@
             try {
                 const octokit = new Octokit({ auth: token });
                 const { data: user } = await octokit.rest.users.getAuthenticated();
-                
+
                 document.getElementById('username').textContent = user.login;
                 document.getElementById('userAvatar').src = user.avatar_url;
                 document.getElementById('login').style.display = 'none';
@@ -299,7 +303,7 @@
             const now = new Date();
             const dateInput = document.getElementById('date');
             dateInput.value = now.toISOString().slice(0, 16);
-            
+
             const savedTitle = localStorage.getItem('autoSaveTitle');
             const savedContent = localStorage.getItem('autoSaveContent');
             if (savedTitle) document.getElementById('title').value = savedTitle;
@@ -312,7 +316,7 @@
                 window.AUTH_TOKEN = savedToken;
                 updateUserProfile();
             }
-            
+
             if (savedToken) {
                 handleRouting();
             }
@@ -411,12 +415,12 @@
         document.getElementById('previewMarkdownButton').addEventListener('click', () => {
             const title = document.getElementById('title').value;
             const project = document.getElementById('project').value;
-            
+
             if (!title) {
                 alert('Please enter a title');
                 return;
             }
-            
+
             if (!project) {
                 alert('Please select a project');
                 return;
@@ -456,112 +460,112 @@
             previewWindow.document.close();
         });
 
-                document.getElementById('postForm').addEventListener('submit', async (e) => {
-                    e.preventDefault();
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-                    await publishPost();
+            await publishPost(false); // false = not a draft (published)
 
-                    localStorage.removeItem('autoSaveTitle');
-                    localStorage.removeItem('autoSaveContent');
-                });
+            localStorage.removeItem('autoSaveTitle');
+            localStorage.removeItem('autoSaveContent');
+        });
 
-                const DEVLOG_REPO = 'FaR-Team/devlog';
-                const DEVLOG_BRANCH = 'main';
-                async function createPost(title, content) {
-                    const octokit = new Octokit({
-                        auth: getAuthToken()
-                    });
+        const DEVLOG_REPO = 'FaR-Team/devlog';
+        const DEVLOG_BRANCH = 'main';
+        async function createPost(title, content) {
+            const octokit = new Octokit({
+                auth: getAuthToken()
+            });
 
-                    let path, message, sha;
-                    
-                    if (window.editingFilename) {
-                        path = `_posts/${window.editingFilename}`;
-                        message = `Update post: ${title}`;
-                        sha = window.editingSHA;
-                    } else {
-                        path = `_posts/${generateFileName(title)}`;
-                        message = `Add new post: ${title}`;
-                    }
+            let path, message, sha;
 
-                    const params = {
-                        owner: 'FaR-Team',
-                        repo: 'devlog',
-                        path: path,
-                        message: message,
-                        content: btoa(unescape(encodeURIComponent(content))),
-                        branch: DEVLOG_BRANCH
-                    };
+            if (window.editingFilename) {
+                path = `_posts/${window.editingFilename}`;
+                message = `Update post: ${title}`;
+                sha = window.editingSHA;
+            } else {
+                path = `_posts/${generateFileName(title)}`;
+                message = `Add new post: ${title}`;
+            }
 
-                    if (sha) {
-                        params.sha = sha;
-                    }
+            const params = {
+                owner: 'FaR-Team',
+                repo: 'devlog',
+                path: path,
+                message: message,
+                content: btoa(unescape(encodeURIComponent(content))),
+                branch: DEVLOG_BRANCH
+            };
 
-                    await octokit.rest.repos.createOrUpdateFileContents(params);
-                }
-                async function publishPost() {
-                    try {
-                        const title = document.getElementById('title').value;
-                        const project = document.getElementById('project').value;
-                        
-                        if (!title.trim()) {
-                            alert('Please enter a title');
-                            return;
-                        }
-                        
-                        if (!project) {
-                            alert('Please select a project');
-                            return;
-                        }
+            if (sha) {
+                params.sha = sha;
+            }
 
-                        const content = generatePostContent();
+            await octokit.rest.repos.createOrUpdateFileContents(params);
+        }
+        async function publishPost(isDraft = false) {
+            try {
+                const title = document.getElementById('title').value;
+                const project = document.getElementById('project').value;
 
-                        await createPost(title, content);
-                        
-                        const action = window.editingFilename ? 'updated' : 'published';
-                        alert(`Post ${action} successfully!`);
-
-                        localStorage.removeItem('autoSaveTitle');
-                        localStorage.removeItem('autoSaveContent');
-                        
-                        window.location.href = 'posts.html';
-                        
-                    } catch (error) {
-                        console.error('Failed to publish post:', error);
-                        alert(`Failed to publish post: ${error.message}`);
-                    }
+                if (!title.trim()) {
+                    alert('Please enter a title');
+                    return;
                 }
 
-                function generatePostContent() {
-                    const title = document.getElementById('title').value;
-                    const dateInput = document.getElementById('date');
-                    const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
-                    const formattedDate = selectedDate.toISOString().split('T')[0];
-                    const project = document.getElementById('project').value;
-                    const selectedTags = getSelectedTags();
-                    const markdownContent = simplemde.value().trim();
+                if (!project) {
+                    alert('Please select a project');
+                    return;
+                }
 
-                    const frontMatter = `---
+                const content = generatePostContent(isDraft);
+
+                await createPost(title, content);
+
+                const actionType = isDraft ? 'saved as draft' : (window.editingFilename ? 'updated' : 'published');
+                alert(`Post ${actionType} successfully!`);
+
+                localStorage.removeItem('autoSaveTitle');
+                localStorage.removeItem('autoSaveContent');
+
+                window.location.href = 'posts.html';
+
+            } catch (error) {
+                console.error('Failed to save post:', error);
+                alert(`Failed to save post: ${error.message}`);
+            }
+        }
+
+        function generatePostContent(isDraft = false) {
+            const title = document.getElementById('title').value;
+            const dateInput = document.getElementById('date');
+            const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
+            const formattedDate = selectedDate.toISOString().split('T')[0];
+            const project = document.getElementById('project').value;
+            const selectedTags = getSelectedTags();
+            const markdownContent = simplemde.value().trim();
+
+            const frontMatter = `---
 layout: post
 title: "${title}"
 date: ${formattedDate}
 project: ${project}
 tags: [${selectedTags.join(', ')}]
+published: ${!isDraft}
 ---
 
 ${markdownContent}`;
 
-                    return frontMatter;
-                }
+            return frontMatter;
+        }
         document.getElementById('saveButton').addEventListener('click', () => {
-            autoSave();
-            alert('Post saved as draft');
+            publishPost(true); // true = isDraft
         });
 
         function insertHorizontalRule(editor) {
             const cm = editor.codemirror;
             const cursor = cm.getCursor();
             const line = cm.getLine(cursor.line);
-            
+
             if (line.trim() === '') {
                 cm.replaceRange('---', cursor);
             } else {
@@ -586,16 +590,16 @@ ${markdownContent}`;
             const selection = cm.getSelection();
             const text = selection || cm.getLine(cm.getCursor().line);
             const replacement = `<div style="${style}">${text}</div>`;
-            
+
             if (selection) {
                 cm.replaceSelection(replacement);
             } else {
                 const cursor = cm.getCursor();
-                cm.replaceRange(replacement, {line: cursor.line, ch: 0}, {line: cursor.line, ch: text.length});
+                cm.replaceRange(replacement, { line: cursor.line, ch: 0 }, { line: cursor.line, ch: text.length });
             }
         }
 
-        document.addEventListener('paste', async function(e) {
+        document.addEventListener('paste', async function (e) {
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let item of items) {
                 if (item.type.indexOf('image') === 0) {
@@ -694,36 +698,36 @@ ${markdownContent}`;
         }
 
         async function exchangeCodeForToken(code) {
-          try {
-            const response = await fetch('/.netlify/functions/token-exchange?code=' + code)
-            const data = await response.json()
-            
-            console.log('Token exchange response:', data);
-            
-            if (data.access_token) {
-              window.AUTH_TOKEN = data.access_token
-              localStorage.setItem('github_token', data.access_token)
-              
-              // Clean up URL
-              window.history.replaceState({}, document.title, window.location.pathname);
-              
-              await updateUserProfile();
-            } else {
-              console.error('No access token received:', data);
-              alert('Failed to authenticate with GitHub');
+            try {
+                const response = await fetch('/.netlify/functions/token-exchange?code=' + code)
+                const data = await response.json()
+
+                console.log('Token exchange response:', data);
+
+                if (data.access_token) {
+                    window.AUTH_TOKEN = data.access_token
+                    localStorage.setItem('github_token', data.access_token)
+
+                    // Clean up URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+
+                    await updateUserProfile();
+                } else {
+                    console.error('No access token received:', data);
+                    alert('Failed to authenticate with GitHub');
+                }
+            } catch (error) {
+                console.error('Token exchange failed:', error);
+                alert('Authentication failed. Please try again.');
             }
-          } catch (error) {
-            console.error('Token exchange failed:', error);
-            alert('Authentication failed. Please try again.');
-          }
         }
-        
+
         function getAuthToken() {
             const token = window.AUTH_TOKEN || localStorage.getItem('github_token');
             console.log('Getting auth token:', token ? 'Token exists' : 'No token');
             return token;
         }
-        
+
         function generateImageFilename(originalFilename) {
             const postTitle = document.getElementById('title').value;
             const randomString = Math.random().toString(36).substring(2, 8);
@@ -739,19 +743,19 @@ ${markdownContent}`;
             const slugifiedTitle = slugify(postTitle);
             return `${slugifiedTitle}-${randomString}.${extension}`;
         }
-        
+
         const GITHUB_CLIENT_ID = 'Ov23liRLEzfDmfWE4Wap';
-        
+
         document.getElementById('login').addEventListener('click', () => {
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://admin.blog.farteam.com.ar/index.html')}&scope=repo`;
+            const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://admin.blog.farteam.com.ar/index.html')}&scope=repo`;
             window.location.href = authUrl;
         });
-        
+
         if (window.location.search.includes('code=')) {
             const code = new URLSearchParams(window.location.search).get('code');
             exchangeCodeForToken(code);
         }
-        
+
         function generateFileName(title) {
             const dateInput = document.getElementById('date');
             const selectedDate = dateInput.value ? new Date(dateInput.value) : new Date();
@@ -763,16 +767,16 @@ ${markdownContent}`;
         function handleRouting() {
             const path = window.location.pathname;
             const urlParams = new URLSearchParams(window.location.search);
-            
+
             console.log('Current path:', path);
-            
+
             if (path.startsWith('/edit/')) {
                 const postSlug = decodeURIComponent(path.replace('/edit/', ''));
                 console.log('Decoded slug:', postSlug);
                 loadPostBySlug(postSlug);
                 return;
             }
-            
+
             const editFilename = urlParams.get('edit');
             if (editFilename) {
                 console.log('Legacy edit parameter:', editFilename);
@@ -802,25 +806,25 @@ ${markdownContent}`;
 
                 const matchingFile = files.find(file => {
                     if (!file.name.endsWith('.md')) return false;
-                    
+
                     const fileSlug = file.name.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
                     if (fileSlug === slug) {
                         console.log('Exact match found:', file.name);
                         return true;
                     }
-                    
+
                     const normalizedFileSlug = slugify(fileSlug);
                     const normalizedInputSlug = slugify(slug);
                     if (normalizedFileSlug === normalizedInputSlug) {
                         console.log('Slugified match found:', file.name);
                         return true;
                     }
-                    
+
                     if (fileSlug.toLowerCase() === slug.toLowerCase()) {
                         console.log('Case-insensitive match found:', file.name);
                         return true;
                     }
-                    
+
                     return false;
                 });
 
@@ -852,35 +856,35 @@ ${markdownContent}`;
                     repo: 'devlog',
                     path: `_posts/${filename}`
                 });
-                
+
                 const decoded = atob(content.content);
                 const post = parsePostContent(decoded);
-                
+
                 document.getElementById('title').value = post.title;
-                
+
                 if (post.date) {
                     const dateObj = new Date(post.date);
                     const formattedDate = dateObj.toISOString().slice(0, 16);
                     document.getElementById('date').value = formattedDate;
                 }
-                
+
                 document.getElementById('project').value = post.project;
-                
+
                 document.querySelectorAll('.tag-selection input[type="checkbox"]').forEach(cb => cb.checked = false);
-                
+
                 post.tags.forEach(tag => {
                     const checkbox = document.querySelector(`input[value="${tag.trim()}"]`);
                     if (checkbox) checkbox.checked = true;
                 });
-                
+
                 simplemde.value(post.content);
-                
+
                 window.editingFilename = filename;
                 window.editingSHA = content.sha;
-                
+
                 document.querySelector('.logo').textContent = 'Editing: ' + post.title;
                 document.querySelector('button[type="submit"]').textContent = 'Update Post';
-                
+
                 if (!document.getElementById('cancelEdit')) {
                     const cancelBtn = document.createElement('button');
                     cancelBtn.type = 'button';
@@ -890,7 +894,7 @@ ${markdownContent}`;
                     cancelBtn.onclick = cancelEditing;
                     document.querySelector('.action-buttons').appendChild(cancelBtn);
                 }
-                
+
             } catch (error) {
                 console.error('Failed to load post:', error);
                 alert('Failed to load post for editing');
@@ -900,7 +904,7 @@ ${markdownContent}`;
         function parsePostContent(content) {
             const lines = content.split('\n');
             const frontMatterEnd = lines.findIndex((line, index) => index > 0 && line === '---');
-            
+
             const frontMatter = {};
             for (let i = 1; i < frontMatterEnd; i++) {
                 const line = lines[i];
@@ -908,11 +912,11 @@ ${markdownContent}`;
                 if (colonIndex > -1) {
                     const key = line.substring(0, colonIndex).trim();
                     let value = line.substring(colonIndex + 1).trim().replace(/^["']|["']$/g, '');
-                    
+
                     if (key === 'tags') {
                         value = value.replace(/[\[\]]/g, '').split(',').map(t => t.trim()).filter(t => t);
                     }
-                    
+
                     frontMatter[key] = value;
                 }
             }
@@ -931,24 +935,25 @@ ${markdownContent}`;
         function cancelEditing() {
             window.editingFilename = null;
             window.editingSHA = null;
-            
+
             document.querySelector('.logo').textContent = 'Bloggern\'t';
             document.querySelector('button[type="submit"]').textContent = 'Publish';
-            
+
             const cancelBtn = document.getElementById('cancelEdit');
             if (cancelBtn) cancelBtn.remove();
-            
+
             document.getElementById('title').value = '';
             simplemde.value('');
             document.getElementById('project').value = '';
             document.querySelectorAll('.tag-selection input[type="checkbox"]').forEach(cb => cb.checked = false);
-            
+
             const now = new Date();
             document.getElementById('date').value = now.toISOString().slice(0, 16);
-            
+
             window.location.href = '/posts';
         }
     </script>
     <script src="dark-mode.js"></script>
 </body>
+
 </html>
