@@ -120,6 +120,16 @@
         </aside>
     </div>
 
+    <div id="mediaGalleryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Media Gallery</h2>
+            <div id="mediaGrid" class="media-grid">
+                <div class="media-loading">Loading images...</div>
+            </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="custom-toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -199,6 +209,71 @@
             input.click();
         }
 
+        const mediaModal = document.getElementById('mediaGalleryModal');
+        const mediaGrid = document.getElementById('mediaGrid');
+        const closeModal = document.querySelector('.close-modal');
+
+        closeModal.onclick = function () {
+            mediaModal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == mediaModal) {
+                mediaModal.style.display = "none";
+            }
+        }
+
+        async function openMediaGallery(editor) {
+            mediaModal.style.display = "block";
+            await fetchMedia();
+        }
+
+        async function fetchMedia() {
+            try {
+                mediaGrid.innerHTML = '<div class="media-loading">Loading images...</div>';
+
+                const octokit = new Octokit({ auth: getAuthToken() });
+                const { data } = await octokit.rest.repos.getContent({
+                    owner: 'FaR-Team',
+                    repo: 'devlog',
+                    path: 'images'
+                });
+
+                mediaGrid.innerHTML = '';
+
+                const images = data.filter(file =>
+                    file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+                );
+
+                if (images.length === 0) {
+                    mediaGrid.innerHTML = '<div class="media-loading">No images found.</div>';
+                    return;
+                }
+
+                images.forEach(image => {
+                    const item = document.createElement('div');
+                    item.className = 'media-item';
+                    item.title = image.name;
+                    item.onclick = () => insertGalleryImage(image);
+
+                    item.innerHTML = `
+                        <img src="${image.download_url}" alt="${image.name}" loading="lazy">
+                        <div class="media-item-name">${image.name}</div>
+                    `;
+                    mediaGrid.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error('Error fetching media:', error);
+                mediaGrid.innerHTML = '<div class="media-loading" style="color: var(--danger)">Failed to load images. ' + error.message + '</div>';
+            }
+        }
+
+        function insertGalleryImage(image) {
+            simplemde.codemirror.replaceSelection(`![${image.name}](${image.download_url})`);
+            mediaModal.style.display = "none";
+        }
+
         let simplemde = new SimpleMDE({
             element: document.getElementById("editor"),
             spellChecker: false,
@@ -223,6 +298,12 @@
                     action: customImageUpload,
                     className: "fa fa-picture-o",
                     title: "Upload Image",
+                },
+                {
+                    name: "gallery",
+                    action: openMediaGallery,
+                    className: "fa fa-th-large",
+                    title: "Media Gallery",
                 },
                 {
                     name: "image-footnote",
