@@ -237,7 +237,7 @@
         </div>
     </div>
 
-    <div id="toastContainer" class="toast-container"></div>
+    <div id="toastContainer" class="custom-toast-container"></div>
 
     <script src="https://esm.sh/@octokit/rest"></script>
     <script src="dark-mode.js"></script>
@@ -247,7 +247,7 @@
         window.showToast = function (message, type = 'info', duration = 3000) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = `custom-toast ${type}`;
 
             let icon = '';
             if (type === 'success') icon = '✅';

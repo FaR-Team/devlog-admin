@@ -489,7 +489,7 @@ select {
 }
 
 /* Toast Notifications */
-.toast-container {
+.custom-toast-container {
     position: fixed;
     bottom: 24px;
     right: 24px;
@@ -499,7 +499,7 @@ select {
     z-index: 10002;
 }
 
-.toast {
+.custom-toast {
     background: var(--surface);
     color: var(--text);
     padding: 12px 24px;
@@ -516,15 +516,15 @@ select {
     /* Ensure default is visible */
 }
 
-.toast.success {
+.custom-toast.success {
     border-left-color: #0f9d58;
 }
 
-.toast.error {
+.custom-toast.error {
     border-left-color: var(--danger);
 }
 
-.toast.info {
+.custom-toast.info {
     border-left-color: var(--primary);
 }
 
