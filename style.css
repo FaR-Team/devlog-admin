@@ -508,9 +508,12 @@ select {
     display: flex;
     align-items: center;
     gap: 12px;
-    animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+    animation: slideIn 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
     border-left: 4px solid var(--primary);
     min-width: 300px;
+    opacity: 1;
+    /* Ensure default is visible */
 }
 
 .toast.success {
@@ -534,15 +537,5 @@ select {
     to {
         transform: translateX(0);
         opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
     }
 }
