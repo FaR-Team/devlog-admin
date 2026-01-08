@@ -237,10 +237,31 @@
         </div>
     </div>
 
+    <div id="toastContainer" class="toast-container"></div>
+
     <script src="https://esm.sh/@octokit/rest"></script>
     <script src="dark-mode.js"></script>
     <script type="module">
         import { Octokit } from 'https://esm.sh/@octokit/rest';
+
+        window.showToast = function (message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            let icon = '';
+            if (type === 'success') icon = '✅';
+            else if (type === 'error') icon = '❌';
+            else icon = 'ℹ️';
+
+            toast.innerHTML = `<span class="toast-icon">${icon}</span> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
 
         const GITHUB_CLIENT_ID = 'Ov23liRLEzfDmfWE4Wap';
 
@@ -368,9 +389,8 @@
         }
 
         window.editPost = function (filename) {
-            const cleanName = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
-            const encodedName = encodeURIComponent(cleanName);
-            window.location.href = `edit.html?post=${encodedName}`;
+            const encodedName = encodeURIComponent(filename);
+            window.location.href = `index.html?edit=${encodedName}`;
         };
 
         function slugify(text) {
@@ -378,10 +398,8 @@
                 .toString()
                 .toLowerCase()
                 .trim()
-                // Replace accented characters with their base equivalents
                 .normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
-                // Replace special characters with their equivalents
                 .replace(/ñ/g, 'n')
                 .replace(/ç/g, 'c')
                 .replace(/ß/g, 'ss')
@@ -391,9 +409,7 @@
                 .replace(/å/g, 'a')
                 .replace(/ð/g, 'd')
                 .replace(/þ/g, 'th')
-                // Replace spaces and special characters with hyphens
                 .replace(/[^a-z0-9]+/g, '-')
-                // Remove leading/trailing hyphens
                 .replace(/^-+|-+$/g, '');
         }
 
@@ -409,11 +425,11 @@
                     await loadPosts();
                 } else {
                     console.error('No access token received:', data);
-                    alert('Failed to authenticate with GitHub');
+                    showToast('Failed to authenticate with GitHub', 'error');
                 }
             } catch (error) {
                 console.error('Token exchange failed:', error);
-                alert('Authentication failed. Please try again.');
+                showToast('Authentication failed. Please try again.', 'error');
             }
         }
 
@@ -431,7 +447,6 @@
         });
 
         document.getElementById('login').addEventListener('click', () => {
-            // Use a single callback URL that should match the GitHub OAuth app's Authorization callback URL
             const authUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://admin.blog.farteam.com.ar/index.html')}&scope=repo`;
             window.location.href = authUrl;
         });
