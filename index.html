@@ -757,7 +757,7 @@ ${markdownContent}`;
             const line = cm.getLine(cursor.line);
 
             if (line.trim() === '') {
-                cm.replaceRange('---', cursor);
+                cm.replaceRange('\n---\n\n', cursor);
             } else {
                 cm.replaceRange('\n\n---\n\n', cursor);
             }
