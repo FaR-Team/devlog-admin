@@ -156,17 +156,19 @@ body {
     font-family: 'Google Sans', sans-serif !important;
     padding: 24px !important;
     height: 600px !important;
+    background: #ffffff !important;
+    color: #202124 !important;
 }
 
 .editor-toolbar {
     border: none !important;
-    background: var(--bg) !important;
-    border-bottom: 1px solid var(--surface-2) !important;
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #dadce0 !important;
     padding: 12px 24px !important;
 }
 
 .editor-toolbar a {
-    color: var(--muted) !important;
+    color: #5f6368 !important;
     border: none !important;
     border-radius: 4px !important;
     padding: 8px !important;
@@ -174,8 +176,8 @@ body {
 }
 
 .editor-toolbar a:hover {
-    background: var(--chip-bg) !important;
-    color: var(--primary) !important;
+    background: #e8f0fe !important;
+    color: #1a73e8 !important;
 }
 
 .editor-toolbar a.active {
@@ -192,7 +194,7 @@ body {
     width: 716px !important;
     height: calc(100vh - 110px) !important;
     z-index: 9999 !important;
-    background: var(--surface) !important;
+    background: #ffffff !important;
     padding: 0 !important;
     transform: translateX(-50%) !important;
 }
@@ -243,8 +245,9 @@ body {
     width: 716px !important;
     height: calc(100vh - 110px) !important;
     z-index: 9998 !important;
-    background: var(--surface) !important;
-    border-left: 1px solid var(--surface-2) !important;
+    background: #ffffff !important;
+    color: #202124 !important;
+    border-left: 1px solid #dadce0 !important;
     overflow-x: hidden !important;
     word-wrap: break-word !important;
     box-sizing: border-box !important;
@@ -470,6 +473,8 @@ select {
     font-family: 'Google Sans', sans-serif !important;
     line-height: 1.6 !important;
     padding: 24px !important;
+    background: #ffffff !important;
+    color: #202124 !important;
 }
 
 @media (max-width: 768px) {
