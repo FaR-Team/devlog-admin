@@ -3,7 +3,6 @@
 }
 
 :root {
-    /* Color system */
     --bg: #f8f9fa;
     --surface: #ffffff;
     --surface-2: #f1f3f4;
@@ -106,7 +105,6 @@ body {
     padding: 24px;
 }
 
-/* Editor layout only when explicitly requested */
 .container-blogger.editor-layout {
     display: flex;
     gap: 24px;
@@ -263,7 +261,10 @@ body {
     overflow-wrap: break-word !important;
 }
 
-.CodeMirror-fullscreen+.editor-preview-side img {
+.CodeMirror-fullscreen+.editor-preview-side img,
+.editor-preview img {
+    display: block !important;
+    margin: 20px auto !important;
     max-width: 100% !important;
     height: auto !important;
 }
@@ -391,7 +392,6 @@ body:has(.CodeMirror-fullscreen) {
     accent-color: var(--primary);
 }
 
-/* Ensure bootstrap .form-control adapts to theme */
 .form-control,
 input,
 textarea,
@@ -401,7 +401,6 @@ select {
     border-color: var(--border);
 }
 
-/* Danger button */
 .btn-danger {
     background: var(--danger);
     color: var(--danger-text);
@@ -493,7 +492,6 @@ select {
     }
 }
 
-/* Toast Notifications */
 .custom-toast-container {
     position: fixed;
     bottom: 24px;
@@ -518,7 +516,6 @@ select {
     border-left: 4px solid var(--primary);
     min-width: 300px;
     opacity: 1;
-    /* Ensure default is visible */
 }
 
 .custom-toast.success {
@@ -545,7 +542,6 @@ select {
     }
 }
 
-/* Media Gallery Modal */
 .modal {
     display: none;
     position: fixed;
@@ -593,7 +589,6 @@ select {
     cursor: pointer;
 }
 
-/* Media Grid */
 .media-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
