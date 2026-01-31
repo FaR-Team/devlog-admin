@@ -177,6 +177,25 @@
             return urlParams.get('post');
         }
 
+        function b64EncodeUTF8(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = "";
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function b64DecodeUTF8(str) {
+            const binary = atob(str);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder().decode(bytes);
+        }
+
         async function loadPost() {
             const token = getAuthToken();
             if (!token) {
@@ -214,7 +233,7 @@
                     headers: { 'If-None-Match': '' }
                 });
 
-                const decoded = atob(content.content);
+                const decoded = b64DecodeUTF8(content.content);
                 currentPost = parsePost(decoded);
 
                 populateForm(currentPost);
@@ -298,7 +317,7 @@ ${content}`;
                     repo: 'devlog',
                     path: `_posts/${currentFilename}`,
                     message: `Update post: ${title}${isDraft ? ' (draft)' : ''}`,
-                    content: btoa(frontMatter),
+                    content: b64EncodeUTF8(frontMatter),
                     sha: currentFile.sha
                 });
 

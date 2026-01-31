@@ -293,6 +293,15 @@
             return localStorage.getItem('github_token');
         }
 
+        function b64DecodeUTF8(str) {
+            const binary = atob(str);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder().decode(bytes);
+        }
+
         async function loadPosts() {
             const token = getAuthToken();
             if (!token) {
@@ -317,7 +326,7 @@
                             path: file.path
                         });
 
-                        const decoded = atob(content.content);
+                        const decoded = b64DecodeUTF8(content.content);
                         const post = parsePost(decoded, file.name);
                         posts.push(post);
                     }

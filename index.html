@@ -180,6 +180,25 @@
                 .replace(/^-+|-+$/g, '');
         }
 
+        function b64EncodeUTF8(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = "";
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function b64DecodeUTF8(str) {
+            const binary = atob(str);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder().decode(bytes);
+        }
+
         window.slugify = slugify;
 
         function customImageUpload(editor) {
@@ -670,7 +689,7 @@
                 repo: 'devlog',
                 path: path,
                 message: message,
-                content: btoa(unescape(encodeURIComponent(content))),
+                content: b64EncodeUTF8(content),
                 branch: DEVLOG_BRANCH
             };
 
@@ -1073,7 +1092,7 @@ ${markdownContent}`;
                     headers: { 'If-None-Match': '' }
                 });
 
-                const decoded = atob(content.content);
+                const decoded = b64DecodeUTF8(content.content);
                 const post = parsePostContent(decoded);
 
                 document.getElementById('title').value = post.title;
